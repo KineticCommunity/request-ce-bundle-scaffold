@@ -1,0 +1,174 @@
+<%!
+
+    public static class LockableSubmissionHelper {
+        
+        /*------------------------------------------------------------------------------------------
+         * CONSTRUCTOR
+         *----------------------------------------------------------------------------------------*/
+        
+        private HttpServletRequest request;
+        private Bundle bundle;
+        private BundleSubmissionComponent submissionComponent;
+        private Identity identity;
+        private Kapp kapp;
+        private String type;
+        
+        private String delegationAttribute;
+        private String groupAttribute;
+
+        public LockableSubmissionHelper(HttpServletRequest request, String type) {
+            this.request = request;
+            this.bundle = (Bundle)request.getAttribute("bundle");
+            this.submissionComponent = (BundleSubmissionComponent)request.getAttribute("Submissions");
+            this.identity = (Identity)request.getAttribute("identity");
+            this.kapp = (Kapp)request.getAttribute("kapp");
+            this.type = type;
+        }
+        
+        /*------------------------------------------------------------------------------------------
+         * CONFIGURATION METHODS
+         *----------------------------------------------------------------------------------------*/
+        
+        public LockableSubmissionHelper setDelegationAttribute(String attributeName) {
+            this.delegationAttribute = attributeName;
+            return this;
+        }
+        
+        public LockableSubmissionHelper setGroupAttribute(String attributeName) {
+            this.groupAttribute = attributeName;
+            return this;
+        }
+        
+        /*------------------------------------------------------------------------------------------
+         * METHODS
+         *----------------------------------------------------------------------------------------*/
+        
+        public List<LockableSubmission> retrieve() {
+            // Declare the results
+            List<LockableSubmission> results = new ArrayList<>();
+            
+            // Raise intelligent errors
+            if (groupAttribute != null && identity.getAttributeValues(groupAttribute) == null) {
+                throw new IllegalStateException("The bundle is configured to use the \""+
+                    groupAttribute+"\" attribute for determining \""+type+"\" groups but "+
+                    "there is not a corresponding user attribute definition in the \""+
+                    kapp.getSpace().getName()+"\" space.");
+            }
+            // Raise intelligent errors
+            if (delegationAttribute != null && identity.getAttributeValues(delegationAttribute) == null) {
+                throw new IllegalStateException("The bundle is configured to use the \""+
+                    delegationAttribute+"\" attribute for determining \""+type+"\" delegation but "+
+                    "there is not a corresponding user attribute definition in the \""+
+                    kapp.getSpace().getName()+"\" space.");
+            }
+            
+            // Build the list of groups that the user is in
+            List<String> groups = new ArrayList<>();
+            if (groupAttribute == null) {
+                groups.addAll(identity.getGroups());
+            } else if (groupAttribute != null) {
+                groups.addAll(identity.getAttributeValues(groupAttribute));
+            }
+            // Build the list of individuals that this user represents
+            List<String> individuals = new ArrayList<>();
+            individuals.add(identity.getUsername());
+            if (delegationAttribute != null) {
+                individuals.addAll(identity.getAttributeValues(delegationAttribute));
+            }
+            
+            // Prepare the query string
+            StringBuffer query = new StringBuffer();
+            if (groups.size() > 0) {
+                query.append("(values[Assigned Group] IN (");
+                query.append(toValuesListString(groups));
+                query.append(") AND values[Assigned Individual]=null) OR ");
+            }
+            query.append("values[Assigned Individual] IN (");
+            query.append(toValuesListString(individuals));
+            query.append(")");
+            bundle.getLogger().info(query.toString());
+            // Prepare the search options
+            Map<String,String[]> searchOptions = new HashMap<>();
+            searchOptions.put("coreState", new String[] {"Draft"});
+            searchOptions.put("type", new String[] {type});
+            searchOptions.put("q", new String[] {query.toString()});
+            // Execute the search
+            List<Submission> submissions = submissionComponent.searchByKapp(kapp, searchOptions);
+            
+            // Prepare the results
+            for (Submission submission : submissions) {
+                results.add(new LockableSubmission(submission));
+            }
+            // Return the results
+            return results;
+        }
+        
+        /*------------------------------------------------------------------------------------------
+         * HELPER METHODS
+         *--------------------------------------------------------------------------------------------*/
+        
+        private String toValuesListString(List<String> values) {
+            StringBuilder buffer = new StringBuilder();
+            for (String value : values) {
+                if (buffer.length() != 0) {
+                    buffer.append(", ");
+                }
+                buffer.append("\"").append(value).append("\"");
+            }
+            return buffer.toString();
+        }
+        
+        
+        /*------------------------------------------------------------------------------------------
+         * HELPER MODELS
+         *----------------------------------------------------------------------------------------*/
+        
+        public static class LockableSubmission {
+
+            private Submission submission;
+
+            public LockableSubmission(Submission submission) {
+                this.submission = submission;
+            }
+
+            public String getAssignedGroup() {
+                throw new UnsupportedOperationException("Not implemented.");
+            }
+
+            public String getAssignedGroups() {
+                throw new UnsupportedOperationException("Not implemented.");
+            }
+
+            public List<String> getAssignedIndividual() {
+                throw new UnsupportedOperationException("Not implemented.");
+            }
+
+            public List<String> getAssignedIndividuals() {
+                throw new UnsupportedOperationException("Not implemented.");
+            }
+
+            public String getLockedBy() {
+                throw new UnsupportedOperationException("Not implemented.");
+            }
+
+            public Date getLockedUntil() {
+                throw new UnsupportedOperationException("Not implemented.");
+            }
+
+            public Submission getSubmission() {
+                return submission;
+            }
+
+            public boolean isExpired() {
+                throw new UnsupportedOperationException("Not implemented.");
+            }
+
+            public boolean isLocked() {
+                throw new UnsupportedOperationException("Not implemented.");
+            }
+
+        }
+        
+    }
+    
+%>
