@@ -1,0 +1,157 @@
+<%@page import="com.kineticdata.core.bridging.Count"%>
+<%@page import="com.kineticdata.core.bridging.Record"%>
+<%@page import="com.kineticdata.core.bridging.RecordList"%>
+<%@page import="org.apache.http.client.HttpClient"%>
+<%@page import="org.apache.http.client.methods.HttpGet"%>
+<%@page import="org.apache.http.client.utils.URLEncodedUtils"%>
+<%@page import="org.apache.http.HttpResponse"%>
+<%@page import="org.apache.http.impl.client.HttpClientBuilder"%>
+<%@page import="org.apache.http.message.BasicNameValuePair"%>
+<%@page import="org.apache.http.NameValuePair"%>
+<%@page import="org.apache.http.util.EntityUtils"%>
+<%! 
+    
+    public static class BridgedResourceHelper {
+        
+        private String kappLocation;
+        private String formSlug;
+        
+        public BridgedResourceHelper(String kappLocation, String formSlug) {
+            this.kappLocation = kappLocation;
+            this.formSlug = formSlug;
+        }
+        
+        /*------------------------------------------------------------------------------------------
+         * UTILITY METHODS
+         *----------------------------------------------------------------------------------------*/
+        
+        public Map<String,String> map() {
+            return new LinkedHashMap<>();
+        }
+        
+        /*------------------------------------------------------------------------------------------
+         * METHODS
+         *----------------------------------------------------------------------------------------*/
+        
+        public Count count(String name, Map<String,String> values) {
+            // Prepare the request parameters
+            Map<String,String> parameters = new LinkedHashMap<>();
+            for (Map.Entry<String,String> entry : values.entrySet()) {
+                parameters.put("values["+entry.getKey()+"]", entry.getValue());
+            }
+            // Execute the request
+            Map<String,Object> response = request(name+"/count", parameters);
+            // Build the result
+            Integer value = (Integer)response.get("value");
+            Map<String,String> metadata = (Map)response.get("metadata");
+            // Return the result
+            return new Count(value, metadata);
+        }
+        
+        public Record retrieve(String name, Map<String,String> values) {
+            // Prepare the request parameters
+            Map<String,String> parameters = new LinkedHashMap<>();
+            for (Map.Entry<String,String> entry : values.entrySet()) {
+                parameters.put("values["+entry.getKey()+"]", entry.getValue());
+            }
+            // Execute the request
+            Map<String,Object> response = request(name, parameters);
+            // Build the result
+            Map<String,Object> record = (Map)response.get("record");
+            Map<String,String> attributes = (Map)record.get("attribute");
+            Map<String,String> metadata = (Map)record.get("metadata");
+            // Return the result
+            return new Record(attributes, metadata);
+        }
+        
+        public RecordList search(String name, Map<String,String> values) {
+            return search(name, values, null, (Integer)null);
+        }
+        
+        public RecordList search(String name, Map<String,String> values, Integer limit) {
+            return search(name, values, limit, (Integer)null);
+        }
+        
+        public RecordList search(String name, Map<String,String> values, Integer limit, Integer offset) {
+            // Prepare the request parameters
+            Map<String,String> parameters = new LinkedHashMap<>();
+            for (Map.Entry<String,String> entry : values.entrySet()) {
+                parameters.put("values["+entry.getKey()+"]", entry.getValue());
+            }
+            if (limit != null) {
+                parameters.put("limit", String.valueOf(limit));
+            }
+            if (offset != null) {
+                parameters.put("offset", String.valueOf(offset));
+            }
+            // Execute the request
+            Map<String,Object> response = request(name, parameters);
+            // Return the result
+            return parseSearchResults(response);
+        }
+        
+        public RecordList search(String name, Map<String,String> values, Integer limit, String pageToken) {
+            // Prepare the request parameters
+            Map<String,String> parameters = new LinkedHashMap<>();
+            for (Map.Entry<String,String> entry : values.entrySet()) {
+                parameters.put("values["+entry.getKey()+"]", entry.getValue());
+            }
+            if (limit != null) {
+                parameters.put("limit", String.valueOf(limit));
+            }
+            if (pageToken != null) {
+                parameters.put("pageToken", pageToken);
+            }
+            // Execute the request
+            Map<String,Object> response = request(name, parameters);
+            // Return the result
+            return parseSearchResults(response);
+        }
+        
+        /*------------------------------------------------------------------------------------------
+         * HELPER METHODS
+         *----------------------------------------------------------------------------------------*/
+        
+        private RecordList parseSearchResults(Map<String,Object> response) {
+            // Build the result
+            List<String> fields = (List)response.get("fields");
+            Map<String,String> metadata = (Map)response.get("metadata");
+            List<Record> records = new ArrayList<>();
+            for (Map<String,String> record : (List<Map<String,String>>)response.get(records)) {
+                Map<String,String> attributes = (Map)record.get("attribute");
+                records.add(new Record(attributes, metadata));
+            }
+            // Return the result
+            return new RecordList(fields.toArray(new String[fields.size()]), records, metadata);
+        }
+        
+        private Map<String,Object> request(String name, Map<String,String> parameters) throws Exception {
+            // Build the URL
+            String url = kappLocation+"/"+formSlug+"/bridgedResources/"+name;
+            
+            // Append parameters
+            List<NameValuePair> urlParameters = new ArrayList<>();       
+            for(Map.Entry<String,String> entry : parameters.entrySet()) {
+                urlParameters.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+            }
+            url = url + "?" + URLEncodedUtils.format(urlParameters, "utf-8");
+            // Set request
+            HttpGet request = new HttpGet(url);
+            // Add headers
+            request.addHeader("Accept", "application/json");
+            request.addHeader("Content-Type", "application/x-www-form-urlencoded");
+            // Set client
+            HttpClient httpClient = HttpClientBuilder.create().build();
+            // Make request
+            HttpResponse response = httpClient.execute(request);
+            // Throw error if response is not 200
+            if (response.getStatusLine().getStatusCode() != 200){
+                throw new RuntimeException("Failed: HTTP Error Code: " + response.getStatusLine().getStatusCode());
+            }
+            // Convert response to string
+            return EntityUtils.toString(response.getEntity());
+        }
+        
+    }
+
+%>
