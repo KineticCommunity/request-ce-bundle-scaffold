@@ -1,7 +1,7 @@
 ## BridgedResourceHelper.jspf
 
 **Current Limitations**
-* Must have one or more "Shared Resources" forms
+* Must have one or more "Shared Resources" forms that define the bridged resources to expose
 * The "Shared Resources" form must have dummy fields for each of the bridged resource
 * Custom sorting is not implemented (the results can be sorted manually as a workaround)
 * Pagination is not implemented (the results can be "truncated" as a workaround for reasonable sized
