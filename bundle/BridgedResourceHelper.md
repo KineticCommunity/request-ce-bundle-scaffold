@@ -1,0 +1,167 @@
+## BridgedResourceHelper.jspf
+
+**Current Limitations**
+* Must have one or more "Shared Resources" forms
+* The "Shared Resources" form must have dummy fields for each of the bridged resource
+* Custom sorting is not implemented (the results can be sorted manually as a workaround)
+* Pagination is not implemented (the results can be "truncated" as a workaround for reasonable sized
+  lists of results.
+
+### Initialization
+`bundle/initialization.jspf`
+```jsp
+<%@include file="BridgedResourceHelper.jspf" %>
+<%!
+    // Ensure the kapp is not null (as would be the case for space display pages)
+    if (kapp != null) {
+        // Initialize a "Resources" helper that makes bridged resource calls to the 
+        // "shared-resources" form in the current Kapp
+        request.setAttribute("Resources", 
+            new BridgedResourceHelper(request, bundle.getKappLocation(), "shared-resources"));
+    }
+%>
+```
+
+### Examples
+
+**Client Side (Javascript) Retrieve / Search**
+```javascript
+// Define the URL to the bridged resource
+var url = bundle.kappLocation()+"/"+"FORM_SLUG"+"/bridgedResources/"+"RESOURCE_NAME";
+// Prepare the bridged resource parameters
+var params = {
+    "values[Last Name]": "Smith",
+    "values[Company]": "Acme"
+};
+// Execute the AJAX request
+$.ajax({
+    method: "get",
+    dataType: 'json',
+    url: url,
+    data: params,
+    success: function(data, textStatus, jqXHR){
+        // The data variable will be formatted differently depending on whether the bridged resource
+        // corresponds to a "Single" or "Multiple" type qualification.
+
+        // Example "Single" type qualification result data:
+        // {
+        //     record: {
+        //         attributes: {
+        //             "Address": "123 Fake St, Springfield, MN, 55555",
+        //             "Display Name": "John Smith",
+        //             "Email": "john.smith@acme.com"
+        //         }
+        //     }
+        // }
+
+        // Example "Multiple" type qualification result data:
+        // {
+        //     records: {
+        //         metadata: {
+        //             count: 20
+        //             pageNumber: 1
+        //             pageSize: 0
+        //         },
+        //         fields: [ "Address", "Display Name", "Email"],
+        //         records: [ 
+        //             "123 Fake St, Springfield, MN, 55555",
+        //             "John Smith",
+        //             "john.smith@acme.com"
+        //         ]
+        //     }
+        // }
+
+        // The string lists returned by a "Multiple" type qualification can easily be converted into
+        // maps using the following code snippit:
+        //     var records = _.map(data.records.records, function(record){
+        //        return _.object(data.records.fields, record);
+        //     });
+        // Which result in a "records" variable that looks something like:
+        //     [
+        //         {
+        //             "Address": "123 Fake St, Springfield, MN, 55555",
+        //             "Display Name": "John Smith",
+        //             "Email": "john.smith@acme.com"
+        //         }
+        //     ]
+    },
+    error: function(jqXHR, textStatus, errorThrown){
+        // Process error
+    }
+});
+```
+
+**Server Side (JSP) Retrieve**
+```jsp
+<%@page pageEncoding="UTF-8" contentType="text/html" trimDirectiveWhitespaces="true"%>
+<%@include file="../bundle/initialization.jspf" %>
+<bundle:layout page="${bundle.path}/layouts/layout.jsp">
+    <c:set var="params" value="${Resources.map()}"/>
+    <c:set target="${params}" property="User" value="Demo"/>
+    <c:set var="record" value="${Resources.retrieve('User', params)}"/>
+    <div>
+        ${text.escape(record.get('Email'))}
+    </div>
+</bundle:layout>
+```
+
+**Server Side (JSP) Search**
+```jsp
+<%@page pageEncoding="UTF-8" contentType="text/html" trimDirectiveWhitespaces="true"%>
+<%@include file="../bundle/initialization.jspf" %>
+<bundle:layout page="${bundle.path}/layouts/layout.jsp">
+    <c:set var="params" value="${Resources.map()}"/>
+    <c:set target="${params}" property="User" value="${identity.username}"/>
+    <c:set var="records" value="${Resources.search('Users', params)}"/>
+    <ul>
+        <c:forEach var="record" items="${records}">
+            <li>${text.escape(record.get('Email'))}</li>
+        </c:forEach>
+    </ul>
+</bundle:layout>
+```
+
+---
+
+#### BridgedResourceHelper Summary
+
+`BridgedResourceHelper(HttpServletRequest request, String kappLocation, String formSlug)`
+
+`Count count(String name)`  
+`Count count(String name, Map<String,String> values)`
+
+`Record retrieve(String name)`  
+`Record retrieve(String name, Map<String,String> values)`
+
+`RecordList search(String name)`  
+`RecordList search(String name, Integer limit)`  
+`RecordList search(String name, Integer limit, Integer offset)`  
+`RecordList search(String name, Map<String,String> values)`  
+`RecordList search(String name, Map<String,String> values, Integer limit)`  
+`RecordList search(String name, Map<String,String> values, Integer limit, Integer offset)`
+
+---
+
+#### Count Summary
+
+`public Integer value()`
+
+---
+
+#### Record Summary
+
+`public List<String> attributeNames()`  
+`public Map<String,String> attributes()`  
+`public String get(String attributeName)`  
+
+---
+
+#### RecordList Summary
+
+`public Record first()`  
+`public Record get(int index)`  
+`public Record last()`  
+
+---
+
+**Last Updated:** 2016-03-11 16:00 CST
