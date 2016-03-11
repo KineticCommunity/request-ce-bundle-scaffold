@@ -94,9 +94,7 @@ $.ajax({
         //         },
         //         fields: [ "Address", "Display Name", "Email"],
         //         records: [ 
-        //             "123 Fake St, Springfield, MN, 55555",
-        //             "John Smith",
-        //             "john.smith@acme.com"
+        //             ["123 Fake St, Springfield, MN, 55555", "John Smith", "john.smith@acme.com"]
         //         ]
         //     }
         // }
