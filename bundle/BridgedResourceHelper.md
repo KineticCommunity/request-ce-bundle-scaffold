@@ -30,10 +30,10 @@
 <%@include file="../bundle/initialization.jspf" %>
 <bundle:layout page="${bundle.path}/layouts/layout.jsp">
     <c:set var="params" value="${Resources.map()}"/>
-    <c:set target="${params}" property="User" value="Demo"/>
-    <c:set var="record" value="${Resources.retrieve('User', params)}"/>
+    <c:set target="${params}" property="Email" value="EMAIL"/>
+    <c:set var="record" value="${Resources.retrieve('User By Email', params)}"/>
     <div>
-        ${text.escape(record.get('Email'))}
+        ${text.escape(record.get('Full Name'))}
     </div>
 </bundle:layout>
 ```
@@ -44,11 +44,11 @@
 <%@include file="../bundle/initialization.jspf" %>
 <bundle:layout page="${bundle.path}/layouts/layout.jsp">
     <c:set var="params" value="${Resources.map()}"/>
-    <c:set target="${params}" property="User" value="${identity.username}"/>
-    <c:set var="records" value="${Resources.search('Users', params)}"/>
+    <c:set target="${params}" property="Department" value="${DEPARTMENT}"/>
+    <c:set var="records" value="${Resources.search('Users By Department', params)}"/>
     <ul>
         <c:forEach var="record" items="${records}">
-            <li>${text.escape(record.get('Email'))}</li>
+            <li>${text.escape(record.get('Full Name'))}</li>
         </c:forEach>
     </ul>
 </bundle:layout>
