@@ -3,6 +3,18 @@
 <bundle:layout page="layouts/form.jsp">
     <bundle:variable name="head">
         <title>${text.escape(form.name)}</title>
+        
+        <c:if test="${true}">
+            <script>
+                bundle.config.ready = function(kineticForm) {
+                    // Prepare locking
+                    bundle.ext.locking.observe(kineticForm, {
+                        lockDuration: 15,
+                        timeoutInterval: 10
+                    });
+                };
+            </script>
+        </c:if>
     </bundle:variable>
     <section class="page" data-page="${page.name}">
         <div class="page-header">

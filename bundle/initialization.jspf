@@ -51,8 +51,8 @@
   request.setAttribute("CategoryHelper", new CategoryHelper());
   request.setAttribute("SetupHelper", setupHelper);
   
-  request.setAttribute("approvals", 
-        new LockableSubmissionHelper(request, "Approval")
+  request.setAttribute("locking", 
+        new LockableSubmissionHelper(request)
             .setDelegationAttribute("Delegations")
             .setGroupAttribute("Groups"));
 %>

@@ -26,16 +26,23 @@
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown">
                     <a id="drop1" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                        <i class="fa fa-user fa-fw"></i> 
-                        ${text.escape(identity.username)} 
+                        <i class="fa fa-user fa-fw"></i>
+                        ${text.escape(identity.username)}
                         <span class="fa fa-caret-down fa-fw"></span>
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="drop1">
-                        <li><a href="${bundle.spaceLocation}/${kapp.slug}?page=profile"><i class="fa fa-pencil fa-fw"></i> Edit Profile</a></li>
-                        <li class="divider"></li>
-                        <li><a href="${bundle.spaceLocation}/app/"><i class="fa fa-dashboard fa-fw"></i> Management Console</a></li>
-                        <li class="divider"></li>
-                        <li><a href="${bundle.spaceLocation}/app/logout"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
+                        <c:choose>
+                            <c:when test="${identity.anonymous}">
+                                <li><a href="${bundle.spaceLocation}/app/login"><i class="fa fa-sign-in fa-fw"></i> Login</a></li>
+                            </c:when>
+                            <c:otherwise>
+                                <li><a href="${bundle.spaceLocation}/${kapp.slug}?page=profile"><i class="fa fa-pencil fa-fw"></i> Edit Profile</a></li>
+                                <li class="divider"></li>
+                                <li><a href="${bundle.spaceLocation}/app/"><i class="fa fa-dashboard fa-fw"></i> Management Console</a></li>
+                                <li class="divider"></li>
+                                <li><a href="${bundle.spaceLocation}/app/logout"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
+                            </c:otherwise>
+                        </c:choose>
                     </ul>
                 </li>
                 <li class="dropdown">
@@ -47,17 +54,17 @@
                     </ul>
                 </li>
             </ul>
-        <c:if test="${kapp != null}">
-            <div class="navbar-form" role="search" style='margin-right:1em;'>
-                <form action="${bundle.kappLocation}" method="GET" role="form">
-                    <div class="form-group">
-                            <input type="hidden" value="search" name="page">
-                            <input  type="text" class="states form-control predictiveText x" name="q" placeholder="Search Forms…" autocomplete="off" autofocus="autofocus">
+            <c:if test="${kapp != null}">
+                <div class="navbar-form" role="search" style='margin-right:1em;'>
+                    <form action="${bundle.kappLocation}" method="GET" role="form">
+                        <div class="form-group">
+                                <input type="hidden" value="search" name="page">
+                                <input  type="text" class="states form-control predictiveText x" name="q" placeholder="Search Forms…" autocomplete="off" autofocus="autofocus">
+                            </div>
                         </div>
-                    </div>
-                </form>
-            </div>
-        </c:if>
+                    </form>
+                </div>
+            </c:if>
         </div>
     </div>
 </nav>
