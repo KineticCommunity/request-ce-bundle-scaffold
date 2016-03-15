@@ -5,19 +5,19 @@ TODO
 
 ## Files
 
-`bundle/LockableSubmissionHelper.jspf`
+[bundle/LockableSubmissionHelper.jspf](LockableSubmissionHelper.jspf)  
 Helper file containing definitions for the LockableSubmissionHelper and LockableSubmission 
 classes.  More information can be found in the 
 [BridgedResourceHelper Summary](#bridgedresourcehelper-summary) and
 [LockableSubmission Summary](#lockablesubmission-summary) sections. 
 
-`bundle/LockableSubmissionHelper.md`
+[bundle/LockableSubmissionHelper.jspf](LockableSubmissionHelper.jspf)  
 README file containing information on configuring and using the lockable submission helper.
 
-`js/locking.js`
+[js/locking.js/LockableSubmissionHelper.jspf](../js/locking.js)  
 JavaScript file containing the code for the client side locking logic.
 
-`pages/lock.jsp`
+[pages/lock.jsp/LockableSubmissionHelper.jspf](../pages/lock.jsp)  
 The callback page that is called by the client side locking logic when a lockable submission is 
 opened.  This page attempts to update the lock on a submission and renders a message describing the
 results of the call.  The contents can be modified to change the displayed messages or formatting.
@@ -31,10 +31,10 @@ results of the call.  The contents can be modified to change the displayed messa
 * Initialize the LockableSubmissionHelper in your `bundle/initialization.jspf` file
 * Initialize the client side locking logic by extending the `bundle.config.ready` event callback
 
-### Apply `Submission Modification` security policies
+### Apply Submission Modification security policies
 TODO
 
-### Include `js/locking.js` in the rendered page head content
+### Include locking.js in the rendered page head content
 `layouts/layout.jsp`
 ```jsp
 <bundle:scriptpack>
