@@ -13,7 +13,7 @@
                     // Prepare locking
                     bundle.ext.locking.observe(kineticForm, {
                         lockDuration: 15,
-                        timeoutInterval: 10
+                        lockInterval: 10
                     });
                 };
             </script>

@@ -1,6 +1,67 @@
 ## Overview
 
-TODO
+The LockableSubmissionHelper is a utility for retrieving and managing "lockable" submissions.  
+Submission locking is used to ensure that Submissions to which multiple people have access to (such 
+as Approvals, Fulfillments, or Tickets) can only be worked on by one user at a time.
+
+### Required Fields
+
+In order to implement this functionality, it is assumed that lockable submission forms have a 
+set of "system fields" (fields that do not display in the page content, often implemented as fields 
+on a page that is after the confirmation page) that are used to manage visibility and lock state.
+These fields are:
+
+* `Assigned Group`
+* `Assigned Individual`
+* `Locked By`
+* `Locked Until`
+
+Setting the `Assigned Group` and `Assigned Individual` field values is outside the scope of this 
+document, but these will often be initialized when Kinetic Task first creates the 
+Approval/Fulfillment/Ticket submission or changed by updating the submission itself.
+
+Setting the `Locked By` and `Locked Until` fields is automatically managed once locking is 
+configured (discussed in futher detail below).
+
+
+### Retrieving
+
+In order to retrieve submissions to display in the bundle, such as retrieving a list of Approval
+submissions that are assigned to me or a group that I am in, the LockableSubmissionHelper can be 
+used like:
+
+```jsp
+<c:forEach var="lockable" items="${locking.search('Approval')}">
+    ...
+</c:forEach>
+```
+
+This will search for all "Approval" type submissions that have me as the `Assigned Individual` or 
+that have one of my groups as the `Assigned Group`.  If group management is being done via User 
+attributes, than the LockableSubmissionHelper needs to be initialized with what the name of the
+group attribute is.
+
+```jsp
+<%
+    request.setAttribute("locking", 
+        new LockableSubmissionHelper(request)
+            .setGroupAttribute("Groups"));
+%>
+```
+
+Additionally, if assignment delegation is being managed by attributes, the LockableSubmissionHelper
+can be initialized with the name of the delegation attribute.  If this is set, the search query will
+search for all submissions that have me as the `Assigned Individual`, that have anyone specified in 
+my list of delegation attributes as the `Assigned Individual`, or that have one of my groups as the
+`Assigned Group`.
+
+```jsp
+<%
+    request.setAttribute("locking", 
+        new LockableSubmissionHelper(request)
+            .setDelegationAttribute("Delegations"));
+%>
+```
 
 
 ## Files
@@ -32,7 +93,23 @@ results of the call.  The contents can be modified to change the displayed messa
 * Initialize the client side locking logic by extending the `bundle.config.ready` event callback
 
 ### Apply Submission Modification security policies
-TODO
+In order to guarantee that submissions can only be modified by the individual with the lock, a
+Submission Security Policy Definition can be created and applied to the form.  Below is an example
+Security Policy Definition that would be applied to the `Submission Modification` security policy
+for any form that leverages locking.
+
+**Name:** Lock Holder  
+**Type:** Submission  
+**Message:** `The submission is locked by ${values('Locked By')}.`  
+**Rule:**
+```
+identity('authenticated') 
+&& (
+  values('Locked By') == identity('username')
+  || Date.parse(values('Locked Until')) < Date.now()
+)
+```
+
 
 ### Include locking.js in the rendered page head content
 **layouts/layout.jsp**  

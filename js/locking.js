@@ -34,6 +34,10 @@
         config = config || {};
         var lockDuration = config.lockDuration || locking.config.lockDuration;
         var lockInterval = config.lockInterval || locking.config.lockInterval;
+        if (lockDuration <= lockInterval) {
+            throw "Calls to bundle.ext.locking.observe must pass a config.lockDuration that is "+
+                "greater than the config.lockInterval."
+        }
         // Calculate the url parameters
         var id = kineticForm.submission.id;
         var until = moment().add(lockDuration, 'seconds').toISOString();
