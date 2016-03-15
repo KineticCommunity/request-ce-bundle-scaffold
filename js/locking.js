@@ -4,7 +4,7 @@
     window.bundle.ext.locking = window.bundle.ext.locking || {
         config: {
             lockDuration: 60,
-            timeoutInterval: 55
+            lockInterval: 45
         }
     };
     
@@ -13,6 +13,17 @@
     var locking = window.bundle.ext.locking;
     
     /**
+     * Prepares a "heartbeat" AJAX call to the kappLocation+'?page=lock' callback page.  This page
+     * attempts to update the 'Locked By' and 'Locked Until' submission values and returns a message
+     * describing the results of the call.
+     * 
+     * Config options:
+     * - element
+     * - lockDuration
+     * - lockInterval
+     * - onBefore
+     * - onFailure
+     * - onSuccess
      * 
      * @param {type} kineticForm
      * @param {type} config
@@ -22,28 +33,48 @@
         // Determine the configuration options
         config = config || {};
         var lockDuration = config.lockDuration || locking.config.lockDuration;
-        var timeoutInterval = config.timeoutInterval || locking.config.timeoutInterval;
+        var lockInterval = config.lockInterval || locking.config.lockInterval;
         // Calculate the url parameters
         var id = kineticForm.submission.id;
         var until = moment().add(lockDuration, 'seconds').toISOString();
+        // If the config defines an onBefore callback function, call it
+        if (typeof config.onBefore === 'function') {
+            config.onBefore.apply(kineticForm);
+        }
         // Make the AJAX call
         $.ajax({
-            method: "GET",
+            method: 'GET',
             url: bundle.kappLocation()+'?page=lock&id='+id+'&until='+until,
-            contentType: "application/json",
+            contentType: 'application/json',
             headers: {
+                // Use X-HTTP-Method-Override because presently the Kinetic routes for spaces,
+                // kapps, and forms only accept GET requests.
                 'X-HTTP-Method-Override': 'PUT'
             },
-            timeout: timeoutInterval*1000,
             success: function(content) {
-                // Initialize 
-                config.element = config.element || $('<div>').prependTo(kineticForm.element());
-                // Write the content
-                $(config.element).html(content);
+                // If an explicit onSuccess handler is specified, call it
+                if (typeof config.onSuccess === 'function') {
+                    config.onSuccess.apply(kineticForm, content);
+                }
+                // If there is not an explicit onSuccess handler, call a default (which sets the 
+                // html content of the configuration element or prepends a div to the kinetic form
+                // if a config element is not specified.
+                else {
+                    // Initialize 
+                    config.element = config.element || $('<div>').prependTo(kineticForm.element());
+                    // Write the content
+                    $(config.element).html(content);
+                }
                 // Recall lock after the timeout interval
                 setTimeout(function() {
                     locking.observe(kineticForm, config);
-                }, timeoutInterval*1000);
+                }, lockInterval*1000);
+            },
+            failure: function(request) {
+                // If the config defines an onFailure callback function, call it
+                if (typeof config.onFailure === 'function') {
+                    config.onFailure.apply(kineticForm, request);
+                }
             }
         });
     };

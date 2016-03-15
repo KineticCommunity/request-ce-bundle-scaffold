@@ -17,8 +17,9 @@
     <c:when test="${lockException != null || lockable == null}">
         <div class="alert alert-danger" role="alert">
             Unable to verify lock.  
-            
-            TEMP ${lockException.message}
+            <pre style="display:none;">
+                ${text.escape(lockException.message)}
+            </pre>
         </div>
     </c:when>
     <%-- COMPLETED BY SOMEONE ELSE --%>
