@@ -8,8 +8,8 @@ TODO
 `bundle/LockableSubmissionHelper.jspf`
 Helper file containing definitions for the LockableSubmissionHelper and LockableSubmission 
 classes.  More information can be found in the 
-[BridgedResourceHelper Summary](#BridgedResourceHelper-Summary) and
-[LockableSubmission Summary](#LockableSubmission-Summary) sections. 
+[BridgedResourceHelper Summary](#bridgedresourcehelper-summary) and
+[LockableSubmission Summary](#lockablesubmission-summary) sections. 
 
 `bundle/LockableSubmissionHelper.md`
 README file containing information on configuring and using the lockable submission helper.
@@ -58,7 +58,7 @@ TODO
 
 ### Initialize the client side locking logic
 More information about what options are available to the `bundle.ext.locking.observe` call can be
-found in the [bundle.ext.locking.observe Summary](#bundle.ext.locking.observe-Summary) section.
+found in the [bundle.ext.locking.observe Summary](#bundleextlockingobserve-summary) section.
 
 `form.jsp`
 ```jsp
@@ -120,6 +120,7 @@ found in the [bundle.ext.locking.observe Summary](#bundle.ext.locking.observe-Su
 ### bundle.ext.locking.observe Summary
 
 ```javascript
+// Configuration Options
 var config = {
     element: null, // Defaults to an empty div prepended to the kinetic form contents
     lockDuration: 60,
@@ -137,6 +138,7 @@ var config = {
         // callback is configured, the display of the response content will be delegated to it.
     }
 };
+// Initialize the "heartbeat" AJAX calls
 bundle.ext.locking.observe(kineticForm, config);
 ```
 
@@ -144,14 +146,14 @@ bundle.ext.locking.observe(kineticForm, config);
 
 #### BridgedResourceHelper Summary
 
-`LockableSubmissionHelper(HttpServletRequest request)`
+`LockableSubmissionHelper(HttpServletRequest request)`  
 
-`LockableSubmissionHelper setDelegationAttribute(String attributeName)`
-`LockableSubmissionHelper setGroupAttribute(String attributeName)`
+`LockableSubmissionHelper setDelegationAttribute(String attributeName)`  
+`LockableSubmissionHelper setGroupAttribute(String attributeName)`  
 
-`LockableSubmission lock(String id, String until) throws Exception`
-`LockableSubmission retrieve(String id)`
-`List<LockableSubmission> search(String type)`
+`LockableSubmission lock(String id, String until) throws Exception`  
+`LockableSubmission retrieve(String id)`  
+`List<LockableSubmission> search(String type)`  
 
 ---
 
@@ -159,10 +161,10 @@ bundle.ext.locking.observe(kineticForm, config);
 
 `LockableSubmission(Submission submission)`
 
-`List<String> getAssignedGroups()`
-`List<String> getAssignedIndividuals()`
-`String getLockedBy()`
-`Date getLockedUntil()`
-`Submission getSubmission()`
-`boolean isExpired()`
-`boolean isLocked()`
+`List<String> getAssignedGroups()`  
+`List<String> getAssignedIndividuals()`  
+`String getLockedBy()`  
+`Date getLockedUntil()`  
+`Submission getSubmission()`  
+`boolean isExpired()`  
+`boolean isLocked()`  
