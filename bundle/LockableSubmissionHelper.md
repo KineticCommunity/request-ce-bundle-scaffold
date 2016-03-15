@@ -5,19 +5,19 @@ TODO
 
 ## Files
 
+[bundle/LockableSubmissionHelper.md](LockableSubmissionHelper.md)  
+README file containing information on configuring and using the lockable submission helper.
+
 [bundle/LockableSubmissionHelper.jspf](LockableSubmissionHelper.jspf)  
 Helper file containing definitions for the LockableSubmissionHelper and LockableSubmission 
 classes.  More information can be found in the 
 [BridgedResourceHelper Summary](#bridgedresourcehelper-summary) and
 [LockableSubmission Summary](#lockablesubmission-summary) sections. 
 
-[bundle/LockableSubmissionHelper.jspf](LockableSubmissionHelper.jspf)  
-README file containing information on configuring and using the lockable submission helper.
-
-[js/locking.js/LockableSubmissionHelper.jspf](../js/locking.js)  
+[js/locking.js](../js/locking.js)  
 JavaScript file containing the code for the client side locking logic.
 
-[pages/lock.jsp/LockableSubmissionHelper.jspf](../pages/lock.jsp)  
+[pages/lock.jsp](../pages/lock.jsp)  
 The callback page that is called by the client side locking logic when a lockable submission is 
 opened.  This page attempts to update the lock on a submission and renders a message describing the
 results of the call.  The contents can be modified to change the displayed messages or formatting.
@@ -35,7 +35,7 @@ results of the call.  The contents can be modified to change the displayed messa
 TODO
 
 ### Include locking.js in the rendered page head content
-`layouts/layout.jsp`
+**layouts/layout.jsp**  
 ```jsp
 <bundle:scriptpack>
     ...
@@ -45,7 +45,7 @@ TODO
 ```
 
 ### Initialize the LockableSubmissionHelper
-`bundle/initialization.jspf`
+**bundle/initialization.jspf**  
 ```jsp
 <%@include file="LockableSubmissionHelper.jspf"%>
 <%
@@ -60,7 +60,7 @@ TODO
 More information about what options are available to the `bundle.ext.locking.observe` call can be
 found in the [bundle.ext.locking.observe Summary](#bundleextlockingobserve-summary) section.
 
-`form.jsp`
+**form.jsp**  
 ```jsp
 <bundle:layout page="layouts/form.jsp">
     <bundle:variable name="head">
