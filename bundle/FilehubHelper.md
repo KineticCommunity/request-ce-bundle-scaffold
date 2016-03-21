@@ -87,29 +87,17 @@ authorization, but the added code should look something like:
     if (kapp != null) {
         // Initialize the filehub helper and configure filestores
         String filehubUrl = kapp.getAttributeValue("Filehub Url");
-        String knowledgeManagementFilestoreSlug = 
-            kapp.getAttributeValue("Knowledge Management Filestore Slug");
-        String knowledgeManagementFilestoreKey = 
-            kapp.getAttributeValue("Knowledge Management Filestore Key");
-        String knowledgeManagementFilestoreSecret = 
-            kapp.getAttributeValue("Knowledge Management Filestore Secret");
+        String slug = kapp.getAttributeValue("Knowledge Management Filestore Slug");
+        String key = kapp.getAttributeValue("Knowledge Management Filestore Key");
+        String secret = kapp.getAttributeValue("Knowledge Management Filestore Secret");
         FilehubHelper filehubHelper = new FilehubHelper(filehubUrl)
-            .addFilestore(
-                knowledgeManagementFilestoreSlug, 
-                knowledgeManagementFilestoreKey, 
-                knowledgeManagementFilestoreSecret);
+            .addFilestore(slug, key, secret);
         // If there is a request for the specified filestore
-        if (knowledgeManagementFilestoreSlug.equals(request.getParameter("filestore"))) {
+        if (slug.equals(request.getParameter("filestore"))) {
             // If access is allowed
-            if (
-                knowledgeManagementHelper.canAccess(
-                    request.getParameter("bucket"),
-                    request.getParameter("path"))
-            ) {
+            if (knowledgeManagementHelper.canAccess(request.getParameter("path"))) {
                 // Build the redirection URL
-                String url = filehubHelper.url(
-                    knowledgeManagementFilestoreSlug, 
-                    request.getParameter("bucket")+"/"+request.getParameter("path"));
+                String url = filehubHelper.url(slug, request.getParameter("path"));
                 // Configure the response to redirect
                 response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
                 response.setHeader("Location", url);
