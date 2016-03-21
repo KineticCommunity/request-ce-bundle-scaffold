@@ -17,9 +17,16 @@ Filehub validates the signature and that the request has not expired before proc
 Once configured, a bundle expose files in external filestores by building up links similar to:
 
 ```jsp
-<a href="${bundle.kappLocation}?filestore=employee-images&path=${path}">${text.escape(filename)}</a>
+<a href="${bundle.kappLocation}?filestore=knowledge-management&path=${path}"
+    >${text.escape(filename)}</a>
 ```
 
+or 
+
+```jsp
+<a href="${bundle.kappLocation}?filestore=db&table=employee_images&record=653325&column=image"
+    >${text.escape(filename)}</a>
+```
 
 ## Files
 
@@ -36,18 +43,6 @@ Helper file containing definitions for the FilehubHelper.  More information can 
 * Copy the files listed above into your bundle
 * Prepare logic used to authorize requests
 * Modify the router.jspf file to handle filestore requests
-
-The examples shown below assume that the URLs are being built similar to:
-
-```jsp
-<a href="${bundle.kappLocation}?filestore=knowledge&path=${text.escapeUrlParameter(path)}">${text.escape(filename)}</a>
-```
-
-Some systems may have multiple parameters, such as when a filestore is exposing files in a database:
-
-```jsp
-<a href="${bundle.kappLocation}?filestore=db&table=employee_images&record=653325&column=image">${text.escape(filename)}</a>
-```
 
 ### Prepare helpers used to authorize requests
 
