@@ -28,6 +28,10 @@ or
     >${text.escape(filename)}</a>
 ```
 
+These URLs are intercepted by the `bundle/router.jspf` file (which is looking for the "filestore"
+parameter), which then uses the parameters to authorize access and respond with a 302 redirect to 
+the signed Kinetic Filehub URL.
+
 ## Files
 
 [bundle/FilehubHelper.md](FilehubHelper.md)  
@@ -80,8 +84,8 @@ authorization, but the added code should look something like:
 <%-- FILEHUB ROUTING --%>
 <%@include file="FilehubHelper.jspf"%>
 <%
-    // If this request is scoped to a kapp
-    if (kapp != null) {
+    // If this request is for a filestore url
+    if (request.getParameter("filestore") != null) {
         // Initialize the filehub helper and configure filestores
         String filehubUrl = kapp.getAttributeValue("Filehub Url");
         String slug = kapp.getAttributeValue("Example Filestore Slug");
