@@ -53,11 +53,12 @@ is often helpful to create a new helper (or leverage an existing helper) to dete
 
 Here is a very simple example helper used in the proceeding examples:
 
+**bundle/ExampleHelper.jsp**
 ```jsp
 <%!
-    public static class KnowledgeManagementHelper {
+    public static class ExampleHelper {
         private Identity identity;
-        public KnowledgeManagementHelper(HttpServletRequest request) {
+        public ExampleHelper(HttpServletRequest request) {
             this.identity = (Identity)request.getAttribute("identity");
         }
         public boolean canAccess(String path) {
@@ -74,6 +75,7 @@ In order to leverage the FilehubHelper in a bundle, some additional routing need
 filestore slugs/keys/secrets, and each filestore will have a different way of determining access 
 authorization, but the added code should look something like:
 
+**bundle/router.jsp**
 ```jsp
 <%-- FILEHUB ROUTING --%>
 <%@include file="FilehubHelper.jspf"%>
@@ -82,15 +84,15 @@ authorization, but the added code should look something like:
     if (kapp != null) {
         // Initialize the filehub helper and configure filestores
         String filehubUrl = kapp.getAttributeValue("Filehub Url");
-        String slug = kapp.getAttributeValue("Knowledge Management Filestore Slug");
-        String key = kapp.getAttributeValue("Knowledge Management Filestore Key");
-        String secret = kapp.getAttributeValue("Knowledge Management Filestore Secret");
+        String slug = kapp.getAttributeValue("Example Filestore Slug");
+        String key = kapp.getAttributeValue("Example Filestore Key");
+        String secret = kapp.getAttributeValue("Example Filestore Secret");
         FilehubHelper filehubHelper = new FilehubHelper(filehubUrl)
             .addFilestore(slug, key, secret);
         // If there is a request for the specified filestore
         if (slug.equals(request.getParameter("filestore"))) {
             // If access is allowed
-            if (knowledgeManagementHelper.canAccess(request.getParameter("path"))) {
+            if (exampleHelper.canAccess(request.getParameter("path"))) {
                 // Build the redirection URL
                 String url = filehubHelper.url(slug, request.getParameter("path"));
                 // Configure the response to redirect
