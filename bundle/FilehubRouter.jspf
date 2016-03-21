@@ -41,7 +41,7 @@
             // Return the redirection path
             return baseUrl+"/filestores/"+filestoreSlug+"/"+path+
                 "?expiration="+expiration+
-                "&filename="+filename+
+                "&filename="+Text.escapeUrlParameter(filename)+
                 "&key="+accessKey.getKey()+
                 "&signature="+signature;
         }
