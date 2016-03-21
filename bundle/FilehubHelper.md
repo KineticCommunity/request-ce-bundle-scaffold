@@ -48,14 +48,12 @@ Helper file containing definitions for the FilehubHelper.  More information can 
 * Prepare logic used to authorize requests
 * Modify the router.jspf file to handle filestore requests
 
-### Prepare helpers used to authorize requests
+### Prepare logic used to authorize requests
 
 Each integration will have different logic for how to control who has access to what files.  Some 
 filestores may only contain files that are considered "public", in which case this step can be 
 skipped.  It is more common that some sort of access control needs to be applied.  In this case, it
 is often helpful to create a new helper (or leverage an existing helper) to determine this.
-
-Here is a very simple example helper used in the proceeding examples:
 
 **bundle/ExampleHelper.jsp**
 ```jsp
