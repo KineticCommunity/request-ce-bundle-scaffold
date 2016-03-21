@@ -72,7 +72,7 @@ README file containing information on configuring and using the lockable submiss
 [bundle/LockableSubmissionHelper.jspf](LockableSubmissionHelper.jspf)  
 Helper file containing definitions for the LockableSubmissionHelper and LockableSubmission 
 classes.  More information can be found in the 
-[BridgedResourceHelper Summary](#bridgedresourcehelper-summary) and
+[LockableSubmissionHelper Summary](#lockablesubmissionhelper-summary) and
 [LockableSubmission Summary](#lockablesubmission-summary) sections. 
 
 [js/locking.js](../js/locking.js)  
@@ -221,7 +221,7 @@ bundle.ext.locking.observe(kineticForm, config);
 
 ---
 
-#### BridgedResourceHelper Summary
+#### LockableSubmissionHelper Summary
 
 `LockableSubmissionHelper(HttpServletRequest request)`  
 
