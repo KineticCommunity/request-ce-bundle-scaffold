@@ -42,10 +42,10 @@
 %>
 
 <%-- FILEHUB ROUTING --%>
-<%@include file="FilehubRouter.jspf"%>
+<%@include file="FilehubHelper.jspf"%>
 <%
     // Initialize the filehub helper and configure filestores
-    FilehubRouter filehubRouter = new FilehubRouter("http://localhost:8080/kinetic-filehub")
+    FilehubHelper filehubHelper = new FilehubHelper("http://localhost:8080/kinetic-filehub")
         .addFilestore("ars", "K3PA83G", "6HRT36GHQDUGHC7PDKU097A634");
     // If there is a request for the specified filestore
     if ("ars".equals(request.getParameter("filestore"))) {
@@ -54,16 +54,19 @@
             request.getParameter("form"),
             request.getParameter("entry"),
             request.getParameter("field"),
-            request.getParameter("file"));
+            request.getParameter("filename"));
         // Build the filehub path
         String path = 
             request.getParameter("form")+
             "/"+request.getParameter("entry")+
             "/"+request.getParameter("field");
+        if (request.getParameter("filename") != null) {
+            path += "/"+request.getParameter("filename");
+        }
         // If access is allowed
         if (accessAllowed) {
             // Build the redirection URL
-            String url = filehubRouter.url("ars", path, request.getParameter("file"));
+            String url = filehubHelper.url("ars", path);
             // Configure the response to redirect
             response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
             response.setHeader("Location", url);

@@ -1,13 +1,13 @@
 <%!
 
-    public static class FilehubRouter {
+    public static class FilehubHelper {
         
         private static final long MILLISECONDS_IN_SECONDS = 1000;
         
         private String baseUrl;
         private Map<String,AccessKey> keys = new HashMap<>();
         
-        public FilehubRouter(String baseUrl) {
+        public FilehubHelper(String baseUrl) {
             this.baseUrl = baseUrl;
         }
         
@@ -15,8 +15,8 @@
          * CONFIGURATION METHODS
          *----------------------------------------------------------------------------------------*/
         
-        public FilehubRouter addFilestore(String slug, String key, String secret) {
-            keys.put(slug, new AccessKey(key, secret));
+        public FilehubHelper addFilestore(String filestoreSlug, String key, String secret) {
+            keys.put(filestoreSlug, new AccessKey(key, secret));
             return this;
         }
         
@@ -24,7 +24,11 @@
          * METHODS
          *----------------------------------------------------------------------------------------*/
         
-        public String url(String filestoreSlug, String path, String filename) {
+        public String url(String filestoreSlug, String path) {
+            return url(filestoreSlug, path, null);
+        }
+        
+        public String url(String filestoreSlug, String path, String filenameOverride) {
             // Retrieve the configured access key for the specified filestore
             AccessKey accessKey = keys.get(filestoreSlug);
             if (accessKey == null) {
@@ -34,16 +38,22 @@
             Long expiration = System.currentTimeMillis()+(5*MILLISECONDS_IN_SECONDS);
             // Build the signature
             String seed = accessKey.getSecret()+" GET "+
-                path+"?expiration="+expiration+"&filename="+filename;
+                path+"?expiration="+expiration;
+            if (filenameOverride != null) {
+                seed += "&filename="+filenameOverride;
+            }
             String signature = com.google.common.io.BaseEncoding.base64Url().encode(
                 com.google.common.hash.Hashing.sha1()
                     .hashString(seed, com.google.common.base.Charsets.UTF_8).asBytes());
             // Return the redirection path
-            return baseUrl+"/filestores/"+filestoreSlug+"/"+path+
+            String result = baseUrl+"/filestores/"+filestoreSlug+"/"+path+
                 "?expiration="+expiration+
-                "&filename="+Text.escapeUrlParameter(filename)+
                 "&key="+accessKey.getKey()+
                 "&signature="+signature;
+            if (filenameOverride != null) {
+                result += "&filename="+Text.escapeUrlParameter(filenameOverride);
+            }
+            return result;
         }
         
         /*------------------------------------------------------------------------------------------
