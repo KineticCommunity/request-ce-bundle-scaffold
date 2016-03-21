@@ -70,3 +70,17 @@
 <%
     request.setAttribute("SubmissionHelper", new SubmissionHelper(request));
 %>
+
+
+<%-- ArsHelper --%>
+<%!
+    public static class ArsHelper {
+        public boolean canAccess(String form, String entry, String field, String filename) {
+            return true;
+        }
+    }
+%>
+<%
+    ArsHelper arsHelper = new ArsHelper();
+    request.setAttribute("ArsHelper", arsHelper);
+%>

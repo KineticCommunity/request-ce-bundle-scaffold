@@ -1,46 +1,81 @@
-<% 
+<%-- INVALID SETUP ROUTING --%>
+<%
     // Check for required Kapp Attributes
-    if (kapp != null && setupHelper.isMissingRequiredAttributes(kapp)){
-        String setupPath = bundle.getPath()+"/pages/setup.jsp";
-%>
-        <jsp:include page="<%=setupPath%>" />
-<%
+    if (kapp != null && setupHelper.isMissingRequiredAttributes(kapp)) {
+        // Render the setup page
+        request.getRequestDispatcher(bundle.getPath()+"/pages/setup.jsp").include(request, response);
+        // Return so that no further JSP processing occurs
         return;
-    }
-    // If page parameter exists, route to requested page
-    else if (request.getParameter("page") != null && !"".equals(request.getParameter("page"))){
-        String bundlePath = bundle.getPath()+"/pages/";
-        String partialPath = request.getParameter("page");
-        String path = new java.net.URI(bundlePath+partialPath+".jsp").normalize().toString();
-        if (!path.startsWith(bundlePath)) {
-            request.setAttribute("javax.servlet.error.message", partialPath);
-            response.setStatus(response.SC_NOT_FOUND); 
+    }    
 %>
-            <jsp:include page="/WEB-INF/pages/404.jsp" />
-<%
-            return;
-        }
-%>
-        <jsp:include page="<%=path%>" />
+
+<%-- PAGE/PARTIAL ROUTING --%>
 <% 
-        return;
+    // Determine if there is a JSP that the response should be delegated to
+    String delegateJsp = null;
+    if (request.getParameter("page") != null) {
+        delegateJsp = bundle.getPath()+"/pages/"+request.getParameter("page")+".jsp";
+    } else if (request.getParameter("partial") != null) {
+        delegateJsp = bundle.getPath()+"/partials/"+request.getParameter("partial")+".jsp";
     }
-    // If partial parameter exists, route to requested page
-    else if (request.getParameter("partial") != null && !"".equals(request.getParameter("partial"))) {
-        String bundlePath = bundle.getPath()+"/partials/";
-        String partialPath = request.getParameter("partial");
-        String path = new java.net.URI(bundlePath+partialPath+".jsp").normalize().toString();
-        if (!path.startsWith(bundlePath)) {
-            request.setAttribute("javax.servlet.error.message", partialPath);
-            response.setStatus(response.SC_NOT_FOUND); 
-%>
-            <jsp:include page="/WEB-INF/pages/404.jsp" />
-<%
-            return;
+    
+    // If the response content should be delegated to a different JSP
+    if (delegateJsp != null) {
+        // Ensure that the specified path matches the "normalized" path and that '..' can't be used
+        // to include unintended file contents
+        String normalizedPath = new java.net.URI(delegateJsp).normalize().toString();
+        // If the specified delegate JSP is not using a "normalized" form
+        if (!delegateJsp.equals(normalizedPath)) {
+            // Simulate a 404 not found
+            request.setAttribute("javax.servlet.error.message", delegateJsp);
+            response.setStatus(response.SC_NOT_FOUND);
+            request.getRequestDispatcher("/WEB-INF/pages/404.jsp").include(request, response);
         }
-%>
-        <jsp:include page="<%=path%>" />
-<% 
+        // If the specified delegate JSP is using a normalized form
+        else {
+            // Render the contents of the jsp
+            request.getRequestDispatcher(delegateJsp).include(request, response);
+        }
+        // Return so that no further JSP processing occurs
         return;
     }
+%>
+
+<%-- FILEHUB ROUTING --%>
+<%@include file="FilehubRouter.jspf"%>
+<%
+    // Initialize the filehub helper and configure filestores
+    FilehubRouter filehubRouter = new FilehubRouter("http://localhost:8080/kinetic-filehub")
+        .addFilestore("ars", "K3PA83G", "6HRT36GHQDUGHC7PDKU097A634");
+    // If there is a request for the specified filestore
+    if ("ars".equals(request.getParameter("filestore"))) {
+        // Determine if the request is authorized
+        boolean accessAllowed = arsHelper.canAccess(
+            request.getParameter("form"),
+            request.getParameter("entry"),
+            request.getParameter("field"),
+            request.getParameter("file"));
+        // Build the filehub path
+        String path = 
+            request.getParameter("form")+
+            "/"+request.getParameter("entry")+
+            "/"+request.getParameter("field");
+        // If access is allowed
+        if (accessAllowed) {
+            // Build the redirection URL
+            String url = filehubRouter.url("ars", path, request.getParameter("file"));
+            // Configure the response to redirect
+            response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+            response.setHeader("Location", url);
+        }
+        // If access is not allowed
+        else {
+            // Simulate a 404 not found response
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            request.setAttribute("javax.servlet.error.message", path);
+            request.getRequestDispatcher("/WEB-INF/pages/404.jsp").include(request, response);
+        }
+        // Return so that no further JSP processing occurs
+        return;
+    } 
 %>

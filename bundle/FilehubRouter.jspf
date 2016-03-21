@@ -1,0 +1,70 @@
+<%!
+
+    public static class FilehubRouter {
+        
+        private static final long MILLISECONDS_IN_SECONDS = 1000;
+        
+        private String baseUrl;
+        private Map<String,AccessKey> keys = new HashMap<>();
+        
+        public FilehubRouter(String baseUrl) {
+            this.baseUrl = baseUrl;
+        }
+        
+        /*------------------------------------------------------------------------------------------
+         * CONFIGURATION METHODS
+         *----------------------------------------------------------------------------------------*/
+        
+        public FilehubRouter addFilestore(String slug, String key, String secret) {
+            keys.put(slug, new AccessKey(key, secret));
+            return this;
+        }
+        
+        /*------------------------------------------------------------------------------------------
+         * METHODS
+         *----------------------------------------------------------------------------------------*/
+        
+        public String url(String filestoreSlug, String path, String filename) {
+            // Retrieve the configured access key for the specified filestore
+            AccessKey accessKey = keys.get(filestoreSlug);
+            if (accessKey == null) {
+                throw new RuntimeException("Unconfigured filestore: "+filestoreSlug);
+            }
+            // Calculate the expiration to be 5 seconds from now
+            Long expiration = System.currentTimeMillis()+(5*MILLISECONDS_IN_SECONDS);
+            // Build the signature
+            String seed = accessKey.getSecret()+" GET "+
+                path+"?expiration="+expiration+"&filename="+filename;
+            String signature = com.google.common.io.BaseEncoding.base64Url().encode(
+                com.google.common.hash.Hashing.sha1()
+                    .hashString(seed, com.google.common.base.Charsets.UTF_8).asBytes());
+            // Return the redirection path
+            return baseUrl+"/filestores/"+filestoreSlug+"/"+path+
+                "?expiration="+expiration+
+                "&filename="+filename+
+                "&key="+accessKey.getKey()+
+                "&signature="+signature;
+        }
+        
+        /*------------------------------------------------------------------------------------------
+         * HELPER CLASSES
+         *----------------------------------------------------------------------------------------*/
+        
+        private static class AccessKey {
+            private final String key;
+            private final String secret;
+            public AccessKey(String key, String secret) {
+                this.key = key;
+                this.secret = secret;
+            }
+            public String getKey() {
+                return key;
+            }
+            public String getSecret() {
+                return secret;
+            }
+        }
+        
+    }
+
+%>
