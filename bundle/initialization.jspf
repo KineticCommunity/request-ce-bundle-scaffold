@@ -52,7 +52,7 @@
     request.setAttribute("SetupHelper", setupHelper);
   
     if (kapp != null) {
-        request.setAttribute("Resources", 
+        request.setAttribute("BridgedResourceHelper", 
             new BridgedResourceHelper(request, bundle.getKappLocation(), "shared-resources"));
     }
 %>

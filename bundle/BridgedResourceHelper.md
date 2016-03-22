@@ -1,5 +1,7 @@
 ## BridgedResourceHelper.jspf
 
+The BridgedResourceHelper is a utility for calling bridged resources from within a bundle.
+
 **Current Limitations**
 * Must have one or more "Shared Resources" forms that define the bridged resources to expose
 * The "Shared Resources" form must have dummy fields for each of the bridged resource
@@ -14,9 +16,9 @@
 <%!
     // Ensure the kapp is not null (as would be the case for space display pages)
     if (kapp != null) {
-        // Initialize a "Resources" helper that makes bridged resource calls to the 
+        // Initialize a "BridgedResourceHelper" helper that makes bridged resource calls to the 
         // "shared-resources" form in the current Kapp
-        request.setAttribute("Resources", 
+        request.setAttribute("BridgedResourceHelper", 
             new BridgedResourceHelper(request, bundle.getKappLocation(), "shared-resources"));
     }
 %>
@@ -29,9 +31,9 @@
 <%@page pageEncoding="UTF-8" contentType="text/html" trimDirectiveWhitespaces="true"%>
 <%@include file="../bundle/initialization.jspf" %>
 <bundle:layout page="${bundle.path}/layouts/layout.jsp">
-    <c:set var="params" value="${Resources.map()}"/>
+    <c:set var="params" value="${BridgedResourceHelper.map()}"/>
     <c:set target="${params}" property="Email" value="EMAIL"/>
-    <c:set var="record" value="${Resources.retrieve('User By Email', params)}"/>
+    <c:set var="record" value="${BridgedResourceHelper.retrieve('User By Email', params)}"/>
     <div>
         ${text.escape(record.get('Full Name'))}
     </div>
@@ -43,9 +45,9 @@
 <%@page pageEncoding="UTF-8" contentType="text/html" trimDirectiveWhitespaces="true"%>
 <%@include file="../bundle/initialization.jspf" %>
 <bundle:layout page="${bundle.path}/layouts/layout.jsp">
-    <c:set var="params" value="${Resources.map()}"/>
+    <c:set var="params" value="${BridgedResourceHelper.map()}"/>
     <c:set target="${params}" property="Department" value="${DEPARTMENT}"/>
-    <c:set var="records" value="${Resources.search('Users By Department', params)}"/>
+    <c:set var="records" value="${BridgedResourceHelper.search('Users By Department', params)}"/>
     <ul>
         <c:forEach var="record" items="${records}">
             <li>${text.escape(record.get('Full Name'))}</li>
@@ -159,7 +161,3 @@ $.ajax({
 `public Record first()`  
 `public Record get(int index)`  
 `public Record last()`  
-
----
-
-**Last Updated:** 2016-03-11 16:00 CST
