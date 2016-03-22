@@ -45,27 +45,68 @@ Helper file containing definitions for the FilehubHelper.  More information can 
 ## Configuration
 
 * Copy the files listed above into your bundle
-* Prepare logic used to authorize requests
+* Initialize the FilehubHelper in your bundle/initialization.jspf file
 * Modify the router.jspf file to handle filestore requests
 
-### Prepare logic used to authorize requests
+### Initialize the FilehubHelper
 
-Each integration will have different logic for how to control who has access to what files.  Some 
-filestores may only contain files that are considered "public", in which case this step can be 
-skipped.  It is more common that some sort of access control needs to be applied.  In this case, it
-is often helpful to create a new helper (or leverage an existing helper) to determine this.
+Each bundle may have a different way to obtain the filehub url and filestore slugs/keys/secrets, and 
+each filestore will have a different way of determining access authorization and building up the 
+filestore request paths, but the initialization code should look something like:
 
-**bundle/ExampleHelper.jsp**
+**bundle/initialization.jspf**
 ```jsp
-<%!
-    public static class ExampleHelper {
-        private Identity identity;
-        public ExampleHelper(HttpServletRequest request) {
-            this.identity = (Identity)request.getAttribute("identity");
-        }
-        public boolean canAccess(String path) {
-            return Text.startsWith(path, identity.getAttributeValue("Department"));
-        }
+<%-- FilehubHelper --%>
+<%@include file="FilehubHelper.jspf"%>
+<%
+    // Add the "Filehub Url" setup attribute
+    setupHelper
+        .addSetupAttribute(
+            "Filehub Url", 
+            "The URL to the Kinetic Filehub application (https://acme.com/kinetic-filehub)", 
+            request.getParameter("filestore") != null);
+    // Initialize the filehub helper
+    FilehubHelper filehubHelper = new FilehubHelper(kapp.getAttributeValue("Filehub Url"));
+    
+    // Add the "Example" filestore setup attributes
+    setupHelper
+        .addSetupAttribute(
+            "Example Filestore Slug", 
+            "The slug of the desired filestore configured in Kinetic Filehub.", 
+            false)
+        .addSetupAttribute(
+            "Example Filestore Key", 
+            "The key for an access key associated to the specified filestore.", 
+            kapp.hasAttribute("Example Filestore Slug"))
+        .addSetupAttribute(
+            "Example Filestore Secret", 
+            "The secret associated to the specified key.", 
+            kapp.hasAttribute("Example Filestore Slug"));
+    // Initialize the "Example" filestore
+    if (kapp.hasAttribute("Example Filestore Slug")) {
+        filehubHelper.addFilestore(
+            kapp.getAttributeValue("Example Filestore Slug"),
+            kapp.getAttributeValue("Example Filestore Key"),
+            kapp.getAttributeValue("Example Filestore Secret"),
+            new FilehubHelper.Authorizer() {
+                @Override public boolean canAccess(HttpServletRequest request) {
+                    // Here is where the access authorization logic is defined.  Simple 
+                    // authorization rules (such as simply returning "true" for public filestores) 
+                    // can be written inline, but more complicated logic should be put into its own 
+                    // Helper and called here.
+                    return true;
+                }
+            },
+            new FilehubHelper.PathBuilder() {
+                @Override public String buildPath(HttpServletRequest request) {
+                    // Here is where path building logic is defined.  Some filestores will just use
+                    // the single "path" parameter and others will need to concatenate multiple 
+                    // parameters (such as a Database filestore, which needs to concatenate the
+                    // table, record id, and column).
+                    return request.getParameter("path");
+                }
+            }
+        );
     }
 %>
 ```
@@ -73,44 +114,35 @@ is often helpful to create a new helper (or leverage an existing helper) to dete
 ### Modify the router.jspf file to handle filestore requests
 
 In order to leverage the FilehubHelper in a bundle, some additional routing needs to be added to the
-`bundle/router.jsp` file.  Each bundle may have a different way to obtain the filehub url and 
-filestore slugs/keys/secrets, and each filestore will have a different way of determining access 
-authorization, but the added code should look something like:
+end of the `bundle/router.jsp` file.  The following code can be copied and pasted directly.
 
 **bundle/router.jsp**
 ```jsp
 <%-- FILEHUB ROUTING --%>
-<%@include file="FilehubHelper.jspf"%>
 <%
-    // If this request is for a filestore url
-    if (request.getParameter("filestore") != null) {
-        // Initialize the filehub helper and configure filestores
-        String filehubUrl = kapp.getAttributeValue("Filehub Url");
-        String slug = kapp.getAttributeValue("Example Filestore Slug");
-        String key = kapp.getAttributeValue("Example Filestore Key");
-        String secret = kapp.getAttributeValue("Example Filestore Secret");
-        FilehubHelper filehubHelper = new FilehubHelper(filehubUrl)
-            .addFilestore(slug, key, secret);
-        // If there is a request for the specified filestore
-        if (slug.equals(request.getParameter("filestore"))) {
-            // If access is allowed
-            if (exampleHelper.canAccess(request.getParameter("path"))) {
-                // Build the redirection URL
-                String url = filehubHelper.url(slug, request.getParameter("path"));
-                // Configure the response to redirect
-                response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-                response.setHeader("Location", url);
-            }
-            // If access is not allowed
-            else {
-                // Simulate a 404 not found response
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                request.setAttribute("javax.servlet.error.message", path);
-                request.getRequestDispatcher("/WEB-INF/pages/404.jsp").include(request, response);
-            }
-            // Return so that no further JSP processing occurs
-            return;
+    // Obtain a reference to the filestore
+    FilehubHelper.Filestore filestore = filehubHelper.getFilestore(request.getParameter("filestore"));
+    // If there is a request for a configured filestore
+    if (filestore != null) {
+        // Build the filestore path
+        String path = filestore.buildPath(request);
+        // If access is allowed
+        if (filestore.canAccess(request)) {
+            // Build the redirection URL
+            String url = filehubHelper.url(filestore.getSlug(), path, request.getParameter("filename"));
+            // Configure the response to redirect
+            response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+            response.setHeader("Location", url);
         }
+        // If access is not allowed
+        else {
+            // Simulate a 404 not found response
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            request.setAttribute("javax.servlet.error.message", path);
+            request.getRequestDispatcher("/WEB-INF/pages/404.jsp").include(request, response);
+        }
+        // Return so that no further JSP processing occurs
+        return;
     }
 %>
 ```
@@ -121,7 +153,21 @@ authorization, but the added code should look something like:
 
 `FilehubHelper(String baseUrl)`  
 
-`FilehubHelper addFilestore(String filestoreSlug, String key, String secret)`  
+`FilehubHelper addFilestore(String filestoreSlug, String key, String secret, 
+    FilehubHelper.Authorizer authorizer, FilehubHelper.PathBuilder pathBuilder)`  
 
+`FilehubHelper.Filestore getFilestore(String filestoreSlug)`  
 `String url(String filestoreSlug, String path)`  
 `String url(String filestoreSlug, String path, String filenameOverride)`  
+
+---
+
+#### FilehubHelper.Filestore Summary
+
+`Filestore(String slug, String key, String secret, Authorizer authorizer, PathBuilder pathBuilder)`  
+
+`String buildPath(HttpServletRequest request)`  
+`boolean canAccess(HttpServletRequest request)`  
+`String getKey()`  
+`String getSecret()`  
+`String getSlug()`  
