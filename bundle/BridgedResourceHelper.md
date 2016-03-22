@@ -1,4 +1,4 @@
-## BridgedResourceHelper.jspf
+## Overview
 
 The BridgedResourceHelper is a utility for calling bridged resources from within a bundle.
 
