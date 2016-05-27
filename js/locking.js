@@ -39,7 +39,7 @@
                 "greater than the config.lockInterval."
         }
         // Calculate the url parameters
-        var id = kineticForm.submission.id;
+        var id = kineticForm.submission().id();
         var until = moment().add(lockDuration, 'seconds').toISOString();
         // If the config defines an onBefore callback function, call it
         if (typeof config.onBefore === 'function') {
