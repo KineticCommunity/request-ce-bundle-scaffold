@@ -130,7 +130,7 @@ have one of the current user's groups as the `Assigned Group`.
                 "groups, or left blank if groups are not being managed by User attributes.", 
             false);
     // If the request is scoped to a specific Kapp (space display pages are not)
-    if (kapp != null && kapp.hasAttribute("Filehub Url")) {
+    if (kapp != null) {
         // Initialize the LockableSubmissionHelper
         LockableSubmissionHelper lockableSubmissionHelper = new LockableSubmissionHelper(request);
         if (kapp.hasAttribute("Lockable Submission Delegation Attribute")) {
