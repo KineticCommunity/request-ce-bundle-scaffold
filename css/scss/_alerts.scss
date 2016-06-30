@@ -45,24 +45,3 @@
     text-align: left;
   }
 }
-.success{
-  color: #00B900;
-  .required,
-  .fa-check{
-    color: #46a546;
-  }
-  .required{
-    font-weight: bold;
-  }
-}
-.danger,
-.warning{
-  color: $black;
-  .required,
-  .fa-exclamation-triangle{
-    color: #8a6d3b;
-  }
-  .required{
-    font-weight: bold;
-  }
-}

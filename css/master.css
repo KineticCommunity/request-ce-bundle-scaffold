@@ -1252,38 +1252,6 @@ nav#kapp-sub-nav {
   text-align: left;
 }
 
-/* line 48, scss/_alerts.scss */
-.success {
-  color: #00B900;
-}
-/* line 50, scss/_alerts.scss */
-.success .required,
-.success .fa-check {
-  color: #46a546;
-}
-/* line 54, scss/_alerts.scss */
-.success .required {
-  font-weight: bold;
-}
-
-/* line 58, scss/_alerts.scss */
-.danger,
-.warning {
-  color: #000000;
-}
-/* line 61, scss/_alerts.scss */
-.danger .required,
-.danger .fa-exclamation-triangle,
-.warning .required,
-.warning .fa-exclamation-triangle {
-  color: #8a6d3b;
-}
-/* line 65, scss/_alerts.scss */
-.danger .required,
-.warning .required {
-  font-weight: bold;
-}
-
 /* Styles go here */
 /* line 2, scss/_modal.scss */
 .kd-modal-backdrop {

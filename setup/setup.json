@@ -1,0 +1,91 @@
+{
+    "spaceAttributeDefinitions": [],
+    "kappAttributeDefinitions": [
+        {
+            "name": "Shared Bridged Resource Form Slug",
+            "allowsMultiple": false,
+            "required": false,
+            "description": "The slug of the form that is used to define shared bridged resources."
+        },
+        {
+            "name": "Header Navigation List",
+            "allowsMultiple": false,
+            "required": false,
+            "description": "JSON Attribute which defines the navigation links that should appear in the header. Structure must be a JSON Array of JSON Objects, with the properties Name (required), Kapp (optional), and Page (optional). Name defines the display text of the link. Kapp defines the slug of the destination Kapp (defaults to current Kapp). Page defines the filename of the destination page (defaults to Kapp's home page)."
+        },
+        {
+            "name": "Search Attribute",
+            "allowsMultiple": true,
+            "required": false,
+            "description": "Specify which form attributes should be searchable. Keyword Attribute is always searchable and does not need to be specified as a Search Attribute."
+        },
+        {
+            "name": "Filehub Url",
+            "allowsMultiple": false,
+            "required": false,
+            "description": "The URL to the Kinetic Filehub application (https://acme.com/kinetic-filehub)."
+        },
+        {
+            "name": "Example Filestore Slug",
+            "allowsMultiple": false,
+            "required": false,
+            "description": "The slug of the desired filestore configured in Kinetic Filehub."
+        },
+        {
+            "name": "Example Filestore Key",
+            "allowsMultiple": false,
+            "required": false,
+            "description": "The key for an access key associated to the specified filestore."
+        },
+        {
+            "name": "Example Filestore Secret",
+            "allowsMultiple": false,
+            "required": false,
+            "description": "The secret associated to the specified key."
+        },
+        {
+            "name": "Lockable Submission Delegation Attribute",
+            "allowsMultiple": false,
+            "required": false,
+            "description": "This should be set to the name of the User attribute definition that corresponds to assignment delegation, or left blank if delegation is not being used."
+        },
+        {
+            "name": "Lockable Submission Group Attribute",
+            "allowsMultiple": false,
+            "required": false,
+            "description": "This should be set to the name of the User attribute definition that corresponds to groups, or left blank if groups are not being managed by User attributes."
+        }
+    ],
+    "formAttributeDefinitions": [
+        {
+            "name": "Icon",
+            "allowsMultiple": false,
+            "required": false,
+            "description": "Icon representing this form."
+        }
+    ],
+    "categoryAttributeDefinitions": [
+        {
+            "name": "Icon",
+            "allowsMultiple": false,
+            "required": false,
+            "description": "Icon representing this category."
+        }
+    ],
+    "userAttributeDefinitions": [],
+    "bridges": [
+        {
+            "name": "Kinetic Core",
+            "status": "Active",
+            "url": "http://localhost:8080/kinetic-bridgehub/app/api/v1/bridges/kinetic-core/"
+        }
+    ],
+    "bridgeModels": [],
+    "categories": [],
+    "formTypes": [],
+    "forms": [],
+    "securityPolicyDefinitions": [],
+    "securityPolicies": [],
+    "spaceWebhooks": [],
+    "kappWebhooks": []
+}
