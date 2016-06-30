@@ -1,74 +1,66 @@
 /**
- * Forms Search using Twitter Typeahead. Prefetch all accessible forms
- * for the Kapp.
-**/
-$(function(){
-  if (!$('.navbar-form .typeahead').length){
-    return;
-  }
-  var matcher = function(strs) {
-    return function findMatches(query, callback) {
-        var matches, substringRegex;
-        matches = [];
-        substrRegex = new RegExp(query, 'i');
-        $.each(strs, function(i, str) {
-          if (substrRegex.test(str)) {
-            matches.push(str);
-          }
-        });
-        callback(matches);
-    };
-  };
-  var formNames = [];
-  var forms = {};
-  $.get(window.bundle.apiLocation() + "/kapps/" + window.bundle.kappSlug() + "/forms", function( data ) {
-    forms = data.forms;
-    $.each(forms, function(i,val) {
-      formNames.push(val.name);
-      forms[val.name] = val;
-    });
-  });
-  $('.navbar-form .typeahead').typeahead({
-      highlight:true
-    },{
-      name: 'forms',
-      source: matcher(formNames),
-    }).bind('typeahead:select', function(ev, suggestion) {
-      window.location.replace(window.bundle.kappLocation() + "/" + forms[suggestion].slug)
-  });
-});
-
-/**
- * Applies the Jquery DataTables plugin to a rendered HTML table to provide
- * column sorting and Moment.js functionality to date/time values.
- *
- * @param {String} tableId The id of the table element.
- * @returns {undefined}
+ * Catalog functions
  */
-function submissionsTable (tableId) {
-    $('#'+tableId).DataTable({
-        dom: '<"wrapper">t',
-        columns: [ { defaultContent: ''}, null, null, null, null ],
-        columnDefs: [
-            {
-                render: function ( cellData, type, row ) {
-                    var span = $('<a>').attr('href', 'javascript:void(0);');
-                    var iso8601date = cellData;
-                    $(span).text(moment(iso8601date).fromNow())
-                            .attr('title', moment(iso8601date).format('MMMM Do YYYY, h:mm:ss A'))
-                            .addClass('time-ago')
-                            .data('toggle', 'tooltip')
-                            .data('placement', 'top');
-                    var td = $('#'+tableId+' td:contains('+cellData+')');
-                    td.html(span);
-                    return td.html();
-                },
-                targets: 'date'
-            },
-            {
-                orderable: false,
-                targets: 'nosort'
-            }
-        ]
+(function($, _){
+    /*----------------------------------------------------------------------------------------------
+     * DOM MANIPULATION AND EVENT REGISTRATION 
+     *   This section is executed on page load to register events and otherwise manipulate the DOM.
+     *--------------------------------------------------------------------------------------------*/
+    $(function() {
+        // Display error message if authentication error is found in URL.  This happens if login credentials fail.
+        if(window.location.search.substring(1).indexOf('authentication_error') !== -1){
+            $('form').notifie({type:'alert',severity:'info',message:'Invalid username or password'});
+        };
     });
-}
+    
+    /*----------------------------------------------------------------------------------------------
+     * COMMON INIALIZATION 
+     *   This code is executed when the Javascript file is loaded
+     *--------------------------------------------------------------------------------------------*/
+    // Ensure the BUNDLE global object exists
+    bundle = typeof bundle !== "undefined" ? bundle : {};
+
+    /*----------------------------------------------------------------------------------------------
+     * COMMON FUNCTIONS
+     *--------------------------------------------------------------------------------------------*/
+    
+    /**
+     * Returns an Object with keys/values for each of the url parameters.
+     * 
+     * @returns {Object}
+     */
+    bundle.getUrlParameters = function() {
+        var searchString = window.location.search.substring(1), params = searchString.split("&"), hash = {};
+        for (var i = 0; i < params.length; i++) {
+            var val = params[i].split("=");
+            hash[unescape(val[0])] = unescape(val[1]);
+        }
+        return hash;
+    };
+    
+    /*----------------------------------------------------------------------------------------------
+     * BUNDLE.CONFIG OVERWRITES
+     *--------------------------------------------------------------------------------------------*/
+    
+    /**
+     * Overwrite the default field constraint violation error handler to use Notifie to display the errors above the individual fields.
+     */
+    bundle.config = bundle.config || {};
+    bundle.config.renderers = bundle.config.renderers || {};
+    bundle.config.renderers.fieldConstraintViolations = function(form, fieldConstraintViolations) {
+        _.each(fieldConstraintViolations, function(value, key){
+            $(form.getFieldByName(key).wrapper()).notifie({
+                message: value.join("<br>"),
+                exitEvents: "click"
+            });
+        });
+    }
+    bundle.config.renderers.submitErrors = function(response) {
+        $('[data-form]').notifie({
+            message: 'There was a ' + response.status + ' : "' + response.statusText + '" error.' ,
+            exitEvents: "click"
+        });
+        console.log(response)
+    }
+})(jQuery, _);
+   
