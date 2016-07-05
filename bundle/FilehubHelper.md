@@ -46,6 +46,7 @@ Helper file containing definitions for the FilehubHelper.  More information can 
 
 * Copy the files listed above into your bundle
 * Initialize the FilehubHelper in your bundle/initialization.jspf file
+* Add setup attributes that are used by the helper
 * Modify the router.jspf file to handle filestore requests
 
 ### Initialize the FilehubHelper
@@ -59,12 +60,6 @@ filestore request paths, but the initialization code should look something like:
 <%-- FilehubHelper --%>
 <%@include file="FilehubHelper.jspf"%>
 <%
-    // Add the "Filehub Url" setup attribute
-    setupHelper
-        .addSetupAttribute(
-            "Filehub Url", 
-            "The URL to the Kinetic Filehub application (https://acme.com/kinetic-filehub)", 
-            request.getParameter("filestore") != null);
     // Declare the filehubHelper, which is referenced in the router.jspf file
     FilehubHelper filehubHelper = null;
     // If the request is scoped to a specific Kapp (space display pages are not)
@@ -72,20 +67,6 @@ filestore request paths, but the initialization code should look something like:
         // Initialize the filehub helper
         filehubHelper = new FilehubHelper(kapp.getAttributeValue("Filehub Url"));
 
-        // Add the "Example" filestore setup attributes
-        setupHelper
-            .addSetupAttribute(
-                "Example Filestore Slug", 
-                "The slug of the desired filestore configured in Kinetic Filehub.", 
-                false)
-            .addSetupAttribute(
-                "Example Filestore Key", 
-                "The key for an access key associated to the specified filestore.", 
-                false)
-            .addSetupAttribute(
-                "Example Filestore Secret", 
-                "The secret associated to the specified key.", 
-                false);
         // Initialize the "Example" filestore
         if (kapp.hasAttribute("Example Filestore Slug")) {
             filehubHelper.addFilestore(
@@ -113,6 +94,38 @@ filestore request paths, but the initialization code should look something like:
         }
     }
 %>
+```
+
+### Add Kapp Setup Attributes 
+*(Include in `setup\setup.json` if using setup wizard)*
+```js
+{
+    "name": "Filehub Url",
+    "allowsMultiple": false,
+    "description": "The URL to the Kinetic Filehub application (https://acme.com/kinetic-filehub)",
+    "required": false
+}
+```
+The example above also used the below attributes, which will likely have different names for your implementation:
+```js
+{
+    "name": "Example Filestore Slug",
+    "allowsMultiple": false,
+    "description": "The slug of the desired filestore configured in Kinetic Filehub.",
+    "required": false
+}
+{
+    "name": "Example Filestore Key",
+    "allowsMultiple": false,
+    "description": "The key for an access key associated to the specified filestore.",
+    "required": false
+}
+{
+    "name": "Example Filestore Secret",
+    "allowsMultiple": false,
+    "description": "The secret associated to the specified key.",
+    "required": false
+}
 ```
 
 ### Modify the router.jspf file to handle filestore requests

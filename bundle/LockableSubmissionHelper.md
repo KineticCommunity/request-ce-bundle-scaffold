@@ -50,6 +50,7 @@ results of the call.  The contents can be modified to change the displayed messa
 * Apply `Submission Modification` security policies to the lockable submission forms
 * Include `js/locking.js` in the rendered page head content
 * Initialize the LockableSubmissionHelper in your `bundle/initialization.jspf` file
+* Add setup attributes that are used by the helper
 * Initialize the client side locking logic by extending the `bundle.config.ready` event callback
 
 ### Apply Submission Modification security policies
@@ -117,18 +118,6 @@ have one of the current user's groups as the `Assigned Group`.
 ```jsp
 <%@include file="LockableSubmissionHelper.jspf"%>
 <%
-    // Add setup attributes
-    setupHelper
-        .addSetupAttribute(
-            "Lockable Submission Delegation Attribute", 
-            "This should be set to the name of the User attribute definition that corresponds to "+
-                "assignment delegation, or left blank if delegation is not being used.", 
-            false)
-        .addSetupAttribute(
-            "Lockable Submission Group Attribute", 
-            "This should be set to the name of the User attribute definition that corresponds to "+
-                "groups, or left blank if groups are not being managed by User attributes.", 
-            false);
     // If the request is scoped to a specific Kapp (space display pages are not)
     if (kapp != null) {
         // Initialize the LockableSubmissionHelper
@@ -144,6 +133,23 @@ have one of the current user's groups as the `Assigned Group`.
         request.setAttribute("LockableSubmissionHelper", lockableSubmissionHelper);
     }
 %>
+```
+
+### Add Kapp Setup Attributes 
+*(Include in `setup\setup.json` if using setup wizard)*
+```js
+{
+    "name": "Lockable Submission Delegation Attribute",
+    "allowsMultiple": false,
+    "description": "This should be set to the name of the User attribute definition that corresponds to assignment delegation, or left blank if delegation is not being used.",
+    "required": false
+}
+{
+    "name": "Lockable Submission Group Attribute",
+    "allowsMultiple": false,
+    "description": "This should be set to the name of the User attribute definition that corresponds to groups, or left blank if groups are not being managed by User attributes.",
+    "required": false
+}
 ```
 
 ### Initialize the client side locking logic

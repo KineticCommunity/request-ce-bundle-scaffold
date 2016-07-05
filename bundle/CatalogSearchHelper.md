@@ -23,6 +23,7 @@ Page that accepts the parameters 'q', 'pageSize', and 'offset', and displays the
 
 * Copy the files listed above into your bundle
 * Initialize the CatalogSearchHelper in your bundle/initialization.jspf file
+* Add setup attributes that are used by the helper
 * You may need to modify the search function to search the components that your KAPP requires, as different KAPPs may have different requirements. 
 * You may also need to modify the WeightedForm class if your KAPP does not search forms. 
 * DO NOT modify the WeightHelper if you are aggregating multiple searches on a page. The WeightHelper needs to use the same algorithm in order to offer a consistent sort/merge order when aggregating results from multiple search helpers.
@@ -35,16 +36,29 @@ Page that accepts the parameters 'q', 'pageSize', and 'offset', and displays the
 <%@include file="CatalogSearchHelper.jspf"%>
 <%
     request.setAttribute("CatalogSearchHelper", new CatalogSearchHelper());
-    //Add setup attributes
-    setupHelper
-        .addSetupAttribute("Search Attribute", 
-            "Specify which form attributes should be searchable. " 
-                + "Keyword attribute is always searchable and does not need to be specified as a Search Attribute. [Allows Multiple]", 
-            false)
-        .addSetupAttribute("Include in Global Search", 
-            "Set if the Kapp should use and participate in global search.", 
-            false); 
 %>
+```
+
+### Add Kapp Setup Attributes 
+*(Include in `setup\setup.json` if using setup wizard)*
+```js
+{
+    "name": "Search Attribute",
+    "allowsMultiple": true,
+    "description": "Specify which form attributes should be searchable. Keyword attribute is always searchable and does not need to be specified as a Search Attribute.",
+    "required": false
+}
+```
+
+### Add Form Setup Attributes 
+*(Include in `setup\setup.json` if using setup wizard)*
+```js
+{
+    "name": "Keyword",
+    "allowsMultiple": true,
+    "description": "Keywords related to the form and it's contents/purpose. Used when searching for forms.",
+    "required": false
+}
 ```
 
 ## Example Usage

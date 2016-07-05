@@ -22,6 +22,7 @@ the [BridgedResourceHelper Summary](#bridgedresourcehelper-summary) section.
 
 * Copy the files listed above into your bundle
 * Initialize the BridgedResourceHelper in your bundle/initialization.jspf file
+* Add setup attributes that are used by the helper
 
 ### Initialize the BridgedResourceHelper
 
@@ -29,11 +30,6 @@ the [BridgedResourceHelper Summary](#bridgedresourcehelper-summary) section.
 ```jsp
 <%@include file="BridgedResourceHelper.jspf" %>
 <%
-    // Add setup attributes
-    setupHelper.addSetupAttribute(
-            "Shared Bridged Resource Form Slug", 
-            "The slug of the form that is used to define shared bridged resources.", 
-            false);
     // If the request is scoped to a specific Kapp (space display pages are not)
     if (kapp != null && kapp.hasAttribute("Shared Bridged Resource Form Slug")) {
         // Initialize the LockableSubmissionHelper
@@ -44,6 +40,17 @@ the [BridgedResourceHelper Summary](#bridgedresourcehelper-summary) section.
                 kapp.getAttributeValue("Shared Bridged Resource Form Slug")));
     }
 %>
+```
+
+### Add Kapp Setup Attributes 
+*(Include in `setup\setup.json` if using setup wizard)*
+```js
+{
+    "name": "Shared Bridged Resource Form Slug",
+    "allowsMultiple": false,
+    "description": "The slug of the form that is used to define shared bridged resources.",
+    "required": false
+}
 ```
 
 ## Example Usage

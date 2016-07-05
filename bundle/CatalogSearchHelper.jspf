@@ -2,8 +2,17 @@
 <%@page import="com.google.common.collect.Ordering" %>
 <%@page import="com.google.common.collect.Lists" %>
 <%@page import="com.google.common.base.Function" %>
-<%-- Helper for searching through the forms of a given kapp. --%>
 <%!
+    /**
+     * Helper for searching through the forms of a given kapp.
+     * 
+     * Returns a weighted list of matched forms, searching through the following form properties from most to least important:
+     *      Form Name
+     *      Form "Keyword" Attribute Values
+     *      Form Description
+     *      Form Attribute Values corresponding to the Kapp's "Search Attribute" attributes
+     *      Form Category Names
+     */
     public static class CatalogSearchHelper {
     
         public CatalogSearchHelper() {}
@@ -80,7 +89,7 @@
             
             @Override
             public String apply(Category category) {
-                return Text.defaultIfBlank(category.getAttributeValue("Display Name"), category.getName());
+                return Text.defaultIfBlank(category.getName(), category.getSlug());
             }
         }
         
