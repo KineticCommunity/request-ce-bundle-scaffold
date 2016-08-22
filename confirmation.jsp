@@ -12,14 +12,14 @@
             <div class='row'>
                 <div class="col-xs-12">
                     <%--  If no confirmation page is defined for the form,
-                        use the default text below, otherwise use the page content.
-                        An empty 'current page' means there is no page defined.
+                          use the default text below, otherwise use the page content.
+                          An empty 'current page' means there is no page defined.
                     --%>
                     <c:choose>
                         <c:when test='${empty submission.currentPage}'>
                             <h4>Thank you for your submission</h4>
                             <p><a href="${bundle.kappLocation}/${form.slug}">Submit again</a></p>
-                            <p><a href="${bundle.kappLocation}">Return to the catalog</a></p>
+                            <p><a href="${bundle.kappLocation}">Return to the ${kapp.name}</a></p>
                         </c:when>
                         <c:otherwise>
                             <app:bodyContent/>
