@@ -1839,4 +1839,11 @@ ul.unstyled {
   display: inline-block;
 }
 
+/* Hide empty state
+ *-------------------------------------- */
+/* line 119, scss/_utilities.scss */
+.empty-state:not(:only-child) {
+  display: none;
+}
+
 /*# sourceMappingURL=master.css.map */

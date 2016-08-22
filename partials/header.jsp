@@ -74,6 +74,13 @@
                         <c:if test="${headerNavigationError ne null}">
                             <li class="alert alert-danger">Error building header navigation. The value of the "Header Navigation List" attribute contains invalid JSON.</li>
                         </c:if>
+                        <c:if test="${identity.spaceAdmin}">
+                            <li class="divider hidden-xs"></li>
+                            <li class="dropdown-header">KAPPS</li>                                    
+                            <c:forEach items="${space.kapps}" var="kapp" begin="0" end="8">
+                                <li><a href="${bundle.spaceLocation}/${kapp.slug}">${kapp.name}</a></li>
+                            </c:forEach>
+                        </c:if>
                     </ul>
                 </li>
             </ul>

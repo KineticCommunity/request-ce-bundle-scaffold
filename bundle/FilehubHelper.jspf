@@ -1,48 +1,48 @@
 <%!
 
     public static class FilehubHelper {
-        
+
         private static final long MILLISECONDS_IN_SECONDS = 1000;
-        
+
         private String baseUrl;
         private java.util.Map<String,Filestore> filestoreConfigs = new java.util.HashMap<>();
-        
+
         public FilehubHelper(String baseUrl) {
             this.baseUrl = baseUrl;
         }
-        
+
         /*------------------------------------------------------------------------------------------
          * CONFIGURATION METHODS
          *----------------------------------------------------------------------------------------*/
-        
+
         public FilehubHelper addFilestore(
-            String filestoreSlug, 
-            String key, 
-            String secret, 
+            String filestoreSlug,
+            String key,
+            String secret,
             FilehubHelper.Authorizer authorizer,
             FilehubHelper.PathBuilder pathBuilder
         ) {
-            filestoreConfigs.put(filestoreSlug, 
+            filestoreConfigs.put(filestoreSlug,
                 new Filestore(filestoreSlug, key, secret, authorizer, pathBuilder));
             return this;
         }
-        
+
         /*------------------------------------------------------------------------------------------
          * METHODS
          *----------------------------------------------------------------------------------------*/
-        
+
         public Filestore getFilestore(String filestoreSlug) {
             return filestoreSlug == null ? null : filestoreConfigs.get(filestoreSlug);
         }
-        
+
         public boolean hasFilestore(String filestoreSlug) {
             return filestoreSlug != null && filestoreConfigs.containsKey(filestoreSlug);
         }
-        
+
         public String url(String filestoreSlug, String path) {
             return url(filestoreSlug, path, null);
         }
-        
+
         public String url(String filestoreSlug, String path, String filenameOverride) {
             // Retrieve the configured access key for the specified filestore
             Filestore filestore = filestoreConfigs.get(filestoreSlug);
@@ -71,11 +71,11 @@
             }
             return result;
         }
-        
+
         /*------------------------------------------------------------------------------------------
          * HELPER CLASSES
          *----------------------------------------------------------------------------------------*/
-            
+
         public static abstract class Authorizer {
             public abstract boolean canAccess(HttpServletRequest request);
         }
@@ -83,7 +83,7 @@
         public static abstract class PathBuilder {
             public abstract String buildPath(HttpServletRequest request);
         }
-        
+
         public static class Filestore {
             private final Authorizer authorizer;
             private final String key;
@@ -91,10 +91,10 @@
             private final String secret;
             private final String slug;
             public Filestore(
-                String slug, 
-                String key, 
-                String secret, 
-                Authorizer authorizer, 
+                String slug,
+                String key,
+                String secret,
+                Authorizer authorizer,
                 PathBuilder pathBuilder
             ) {
                 this.key = key;
@@ -119,7 +119,5 @@
                 return slug;
             }
         }
-        
     }
-
 %>

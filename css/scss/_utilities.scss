@@ -113,3 +113,9 @@ ul.unstyled {
 .display-inline-block {
   display: inline-block;
 }
+
+/* Hide empty state
+ *-------------------------------------- */
+.empty-state:not(:only-child) {
+  display: none;
+}
