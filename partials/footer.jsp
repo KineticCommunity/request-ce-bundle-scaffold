@@ -7,12 +7,12 @@
         </div>
         <div class="build col-xs-6">
             <dl class="dl-horizontal">
-                <dt>Build Date:</dt>
+                <dt>${i18n.translate('Build Date')}:</dt>
                 <dd>${time.format(time.parse(buildDate, 'yyyy-MM-dd HH:mm:ss Z', zoneId, locale), 'MMMM dd, yyyy K:mma z', zoneId, locale)}</dd>
-                <dt>Version:</dt>
+                <dt>${i18n.translate('Version')}:</dt>
                 <dd>${buildVersion}</dd>
-                <dt>Bundle:</dt>
-                <dd>Scaffold <a href='https://github.com/KineticCommunity/request-ce-bundle-scaffold' target="_blank">(Learn More)</a></dd>
+                <dt>${i18n.translate('Bundle')}:</dt>
+                <dd>Scaffold <a href='https://github.com/KineticCommunity/request-ce-bundle-scaffold' target="_blank">(${i18n.translate('Learn More')})</a></dd>
             </dl>
         </div>
     </div>

@@ -13,20 +13,20 @@
     </bundle:variable>
     <div class="no-data">
         <h2>
-            ${kapp.name} Kapp Setup
+            ${text.escape(i18n.translate(kapp.name))}&nbsp;${i18n.translate('Kapp Setup')}
         </h2>
         <c:choose>
             <c:when test="${!identity.spaceAdmin}">
                 <c:choose>
                     <c:when test="${!SetupHelper.isConfigured() || !SetupHelper.isValid() || SetupHelper.isMissingAttributes()}">
                         <div class="alert alert-danger">
-                            <h4>The setup for this application is not complete.</h4>
-                            <p>Please contact your administrator.</p>
+                            <h4>${i18n.translate('The setup for this application is not complete.')}</h4>
+                            <p>${i18n.translate('Please contact your administrator.')}</p>
                         </div>
                     </c:when>
                     <c:otherwise>
                         <div class="alert alert-danger">
-                            <h4>You do not have access to this page.</h4>
+                            <h4>${i18n.translate('You do not have access to this page.')}</h4>
                         </div>
                     </c:otherwise>
                 </c:choose>

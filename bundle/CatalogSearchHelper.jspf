@@ -2,6 +2,8 @@
 <%@page import="com.google.common.collect.Ordering" %>
 <%@page import="com.google.common.collect.Lists" %>
 <%@page import="com.google.common.base.Function" %>
+<%@page import="java.util.regex.Matcher" %>
+<%@page import="java.util.regex.Pattern" %>
 <%!
     /**
      * Helper for searching through the forms of a given kapp.
@@ -14,8 +16,26 @@
      *      Form Category Names
      */
     public static class CatalogSearchHelper {
+
+        /*----------------------------------------------------------------------------------------------
+         * PROPERTIES
+         *--------------------------------------------------------------------------------------------*/
+          
+        private HttpServletRequest request;
+        private I18nHelper i18n;
+        
+        /*----------------------------------------------------------------------------------------------
+         * CONSTRUCTOR
+         *--------------------------------------------------------------------------------------------*/
     
-        public CatalogSearchHelper() {}
+        public CatalogSearchHelper(HttpServletRequest request) {
+            this.request = request;
+            this.i18n = (I18nHelper)request.getAttribute("i18n");
+        }
+        
+        /*----------------------------------------------------------------------------------------------
+         * METHODS
+         *--------------------------------------------------------------------------------------------*/
         
         /**
          * Returns full list of WeightedForms that match all words in the query.
@@ -37,22 +57,22 @@
             }
             // Breaks query parameter into individual words
             List<String> queryParts = Arrays.asList(query.trim().toLowerCase().split(" "));
-            // Create a TreeSet of WeightedForms to store results. It will be automatically sorted by weight.
+            // Create a List of WeightedForms to store results.
             List<WeightedForm> results = new ArrayList<WeightedForm>();
             // Iterate through the forms
             for (Form form : forms) {
                 // Calculate weight of the form
                 double weight = WeightHelper.weigh(queryParts, 
                         // Form Name (most important)
-                        Arrays.asList(form.getName()), 
+                        getFormNameAsList(form), 
                         // Form Keyword attributes
-                        form.getAttributeValues("Keyword"),
+                        getFormKeywordAttributesAsList(form),
                         // Form Description
-                        Arrays.asList(form.getDescription()),
+                        getFormDescriptionAsList(form), 
                         // For attributes corresponding to Kapp's Search Attribute attributes
-                        SearchAttributes.INSTANCE.apply(form),
+                        getSearchableAttributeValuesAsList(form), 
                         // Category Display names (least important)
-                        Lists.transform(form.getCategories(), CategoryNames.INSTANCE));
+                        getFormCategoryNamesAsList(form)); 
                 // If weight is > 0, all query parts were matched, so add form to results set
                 if (weight > 0){
                     results.add(new WeightedForm(form, weight));
@@ -80,6 +100,10 @@
             return results.subList(offset, pageEnd);
         }
         
+        /*----------------------------------------------------------------------------------------------
+         * HELPER FUNCTIONS
+         *--------------------------------------------------------------------------------------------*/
+        
         /**
          * Function used to transform a List of Category objects into a List of category names (Strings)
          * Example use: Lists.transform(form.getCategories(), CategoryNames.INSTANCE)
@@ -93,26 +117,59 @@
             }
         }
         
-        /**
-         * Function used to transform a Form object into a List of attribute values (Strings)
-         *  which correspond to any predefined Search Attributes
-         * Example use: SearchAttributes.INSTANCE.apply(form),
-         */
-        private enum SearchAttributes implements Function<Form, List<String>> {
-            INSTANCE;
-            
-            @Override
-            public List<String> apply(Form form) {
-                List<String> searchableAttributeValues = new ArrayList<String>();
-                // TODO getAttributeValues should never return null. Remove null checks when core functionality is implemented
-                if (form.getKapp().getAttributeValues("Search Attribute") != null){
-                    for (String searchableAttributeName : form.getKapp().getAttributeValues("Search Attribute")){
-                        searchableAttributeValues.addAll(form.getAttributeValues(searchableAttributeName));
-                    }
-                }
-                return searchableAttributeValues;
-            }
+        /*----------------------------------------------------------------------------------------------
+         * HELPER METHODS
+         *--------------------------------------------------------------------------------------------*/
+         
+        private List<String> getFormNameAsList(Form form){
+            return Arrays.asList(translate(form, form.getName()));
         }
+        
+        private List<String> getFormDescriptionAsList(Form form){
+            return Arrays.asList(translate(form, form.getDescription()));
+        }
+        
+        private List<String> getFormKeywordAttributesAsList(Form form){
+            return Lists.transform(form.getAttributeValues("Keyword"), translator(form));
+        }
+        
+        private List<String> getSearchableAttributeValuesAsList(Form form){
+            List<String> searchableAttributeValues = new ArrayList<String>();
+            for (String searchableAttributeName : form.getKapp().getAttributeValues("Search Attribute")){
+                searchableAttributeValues.addAll(form.getAttributeValues(searchableAttributeName));
+            }
+            return Lists.transform(searchableAttributeValues, translator(form));
+        }
+        
+        private List<String> getFormCategoryNamesAsList(Form form){
+            return Lists.transform(Lists.transform(form.getCategories(), CategoryNames.INSTANCE), translator(form));
+        }
+
+        
+        /*----------------------------------------------------------------------------------------------
+         * TRANSLATION HELPER METHODS
+         *--------------------------------------------------------------------------------------------*/
+         
+        private String translate(Form form, String key){
+            return this.i18n != null
+                    ? this.i18n.translate(form, key)
+                    : key;
+        }
+        
+        public Function<String, String> translator(final Form form){
+            return new Function<String, String>(){
+                @Override
+                public String apply(String key) {
+                    return i18n != null
+                            ? i18n.translate(form, key)
+                            : key;
+                }
+            };
+        }
+        
+        /*----------------------------------------------------------------------------------------------
+         * HELPER CLASSES
+         *--------------------------------------------------------------------------------------------*/
     
         /**
          * Defines a WeightedForm object which stores a Form and its weight

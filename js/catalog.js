@@ -8,8 +8,10 @@
      *--------------------------------------------------------------------------------------------*/
     $(function() {
         // Display error message if authentication error is found in URL.  This happens if login credentials fail.
-        if(window.location.search.substring(1).indexOf('authentication_error') !== -1){
-            $('form').notifie({type:'alert',severity:'info',message:'Invalid username or password'});
+        if(window.location.search.substring(1).indexOf("authentication_error") !== -1){
+            $("form#kinetic-login").notifie({
+                message: K.translate("bundle", "Invalid username and/or password.")
+            });
         };
     });
     
@@ -57,7 +59,7 @@
     }
     bundle.config.renderers.submitErrors = function(response) {
         $('[data-form]').notifie({
-            message: 'There was a ' + response.status + ' : "' + response.statusText + '" error.' ,
+            message: K.translate("bundle", "A problem was encountered by the server, please contact an administrator."), 
             exitEvents: "click"
         });
         console.log(response)

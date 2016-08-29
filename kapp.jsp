@@ -5,9 +5,10 @@
 
 <bundle:layout page="${bundle.path}/layouts/layout.jsp">
     <bundle:variable name="head">
-        <title>Kinetic Data ${text.escape(kapp.name)}</title>
+        <title>${i18n.translate('Kinetic Data')}&nbsp;${text.escape(i18n.translate(kapp.name))}</title>
     </bundle:variable>
-    <h3>${text.escape(kapp.name)}</h3>
+    
+    <h3>${text.escape(i18n.translate(kapp.name))}</h3>
     <div class="row">
         <div class="col-md-12">
             

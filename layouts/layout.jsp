@@ -13,6 +13,10 @@
         <link rel="icon" type="image/png" href="${bundle.location}/images/favicon-96x96.png" sizes="96x96">
         <link rel="shortcut icon" href="${bundle.location}/images/favicon.ico" type="image/x-icon"/>
         <app:headContent/>
+        <script>bundle.config.userLocale = '${locale}';</script>
+        <script src="${i18n.scriptPath('shared')}"></script>
+        <script src="${i18n.scriptPath('bundle')}"></script>
+        <%-- Include any custom contexts here. --%>
         <link href="${bundle.location}/libraries/font-awesome/css/font-awesome.css" rel="stylesheet" type="text/css"/>
         <bundle:stylepack>
             <bundle:style src="${bundle.location}/libraries/bootstrap/css/bootstrap.css"/>
@@ -32,7 +36,7 @@
             <bundle:script src="${bundle.location}/js/locking.js" />
             <bundle:script src="${bundle.location}/js/review.js"/>
         </bundle:scriptpack>
-        <!-- Moment-with-locales.js is incompatible with the bundle:scriptpack minification process. -->
+        <%-- Moment-with-locales.js is incompatible with the bundle:scriptpack minification process. --%>
         <bundle:scriptpack minify="false">
             <bundle:script src="${bundle.location}/libraries/moment/moment-with-locales.min.js"/>
         </bundle:scriptpack>

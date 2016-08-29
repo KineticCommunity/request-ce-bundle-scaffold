@@ -3,7 +3,7 @@
 <%@include file="bundle/router.jspf" %>
 <bundle:layout page="layouts/form.jsp">
     <bundle:variable name="head">
-        <title>${text.escape(form.name)}</title>
+        <title>${text.escape(i18n.translate(form, form.name))}</title>
         
         <%-- If the form has a "Locked By" field and is not being displayed in review mode. --%>
         <c:if test="${form.getField('Locked By') != null && param.review == null}">
@@ -22,11 +22,12 @@
     </bundle:variable>
     <section class="page" data-page="${page.name}">
         <div class="page-header">
-            <h1>${text.escape(form.name)}</h1>
+            <h1>${text.escape(i18n.translate(form, form.name))}</h1>
         </div>
         <c:if test="${param.review != null && pages.size() > 1}">
             <c:import url="partials/review.jsp" charEncoding="UTF-8"></c:import>
         </c:if>
         <app:bodyContent/>
+        <script src="${i18n.scriptPath(form)}"></script>
     </section>
 </bundle:layout>

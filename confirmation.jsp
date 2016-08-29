@@ -2,11 +2,11 @@
 <%@include file="bundle/initialization.jspf" %>
 <bundle:layout page="layouts/form.jsp">
     <bundle:variable name="head">
-        <title>${text.escape(form.name)}</title>
+        <title>${text.escape(i18n.translate(form, form.name))}</title>
     </bundle:variable>
     <section class="page">
         <div class="page-header">
-            <h1>${text.escape(form.name)}</h1>
+            <h1>${text.escape(i18n.translate(form, form.name))}</h1>
         </div>
         <div class='content'>
             <div class='row'>
@@ -17,9 +17,9 @@
                     --%>
                     <c:choose>
                         <c:when test='${empty submission.currentPage}'>
-                            <h4>Thank you for your submission</h4>
-                            <p><a href="${bundle.kappLocation}/${form.slug}">Submit again</a></p>
-                            <p><a href="${bundle.kappLocation}">Return to the ${kapp.name}</a></p>
+                            <h4>${i18n.translate('Thank you for your submission')}</h4>
+                            <p><a href="${bundle.kappLocation}/${form.slug}">${i18n.translate('Submit again')}</a></p>
+                            <p><a href="${bundle.kappLocation}">${i18n.translate('Return to the KAPP_NAME').replace('KAPP_NAME', text.escape(i18n.translate(form, form.name)))}</a></p>
                         </c:when>
                         <c:otherwise>
                             <app:bodyContent/>

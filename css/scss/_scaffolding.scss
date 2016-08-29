@@ -17,6 +17,10 @@ body {
   margin-bottom: $footer-height;
 }
 
+body > div.view-port > div.container {
+  margin-top: 15px;
+}
+
 /* Links
  *-------------------------------------- */
 @include anchor();

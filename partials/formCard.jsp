@@ -7,15 +7,15 @@
             <span class="fa ${text.defaultIfBlank(thisForm.getAttributeValue('Icon'), 'fa-star')} secondary-color"></span>
             <span class="card-title">
                 <a href="${bundle.kappLocation}/${thisForm.slug}">
-                    ${text.escape(thisForm.name)}
+                    ${text.escape(i18n.translate(thisForm, thisForm.name))}
                 </a>
             </span>
-            <p>${text.escape(thisForm.description)}</p>
+            <p>${text.escape(i18n.translate(thisForm, thisForm.description))}</p>
 
         </div>
         <div class="card-action clearfix">
             <a href="${bundle.kappLocation}/${thisForm.slug}">
-                Submit Form
+                ${i18n.translate(thisForm, 'Submit Form')}
             </a>
         </div>
     </div>

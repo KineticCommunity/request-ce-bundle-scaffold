@@ -1,3 +1,14 @@
+<%-- AUTHENTICATION REQUIRED AND USER IS ANONYMOUS --%>
+<%
+    if (kapp == null && identity.isAnonymous() && !"Yes".equalsIgnoreCase(space.getAttributeValue("Allow Anonymous"))) {
+        response.sendRedirect(bundle.getSpaceLocation()+"/app/login");
+        return;
+    } else if (kapp != null && identity.isAnonymous() && !"Yes".equalsIgnoreCase(kapp.getAttributeValue("Allow Anonymous"))) {
+        response.sendRedirect(bundle.getSpaceLocation()+"/app/login?kapp="+kapp.getSlug());
+        return;
+    }
+%>
+
 <%
     // String to store the path to the JSP that the response should be delegated to
     String delegateJsp = null;
