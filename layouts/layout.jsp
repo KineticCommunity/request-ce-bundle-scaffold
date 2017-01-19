@@ -12,6 +12,11 @@
         <link rel="icon" type="image/png" href="${bundle.location}/images/favicon-32x32.png" sizes="32x32">
         <link rel="icon" type="image/png" href="${bundle.location}/images/favicon-96x96.png" sizes="96x96">
         <link rel="shortcut icon" href="${bundle.location}/images/favicon.ico" type="image/x-icon"/>
+        <c:set var="pageTitle"><bundle:yield name="pageTitle"/></c:set>
+        <title>
+            ${text.join([not empty pageTitle ? pageTitle : text.defaultIfBlank(form.name, kapp.name), space.name], ' - ')}
+            ${space.hasAttribute('Page Title Brand') ? text.join([' | ', space.getAttributeValue('Page Title Brand')]) : ''}
+        </title>
         <app:headContent/>
         <script>bundle.config.userLocale = '${locale}';</script>
         <script src="${i18n.scriptPath('shared')}"></script>

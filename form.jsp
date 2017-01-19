@@ -3,7 +3,7 @@
 <%@include file="bundle/router.jspf" %>
 <bundle:layout page="layouts/form.jsp">
     <bundle:variable name="head">
-        <title>${text.escape(i18n.translate(form, form.name))}</title>
+        <bundle:variable name="pageTitle">${text.escape(i18n.translate(form, form.name))}</bundle:variable>
         
         <%-- If the form has a "Locked By" field and is not being displayed in review mode. --%>
         <c:if test="${form.getField('Locked By') != null && param.review == null}">

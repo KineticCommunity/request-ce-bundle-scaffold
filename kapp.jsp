@@ -5,7 +5,7 @@
 
 <bundle:layout page="${bundle.path}/layouts/layout.jsp">
     <bundle:variable name="head">
-        <title>${i18n.translate('Kinetic Data')}&nbsp;${text.escape(i18n.translate(kapp.name))}</title>
+        <bundle:variable name="pageTitle">${text.escape(i18n.translate(kapp.name))}</bundle:variable>
     </bundle:variable>
     
     <h3>${text.escape(i18n.translate(kapp.name))}</h3>

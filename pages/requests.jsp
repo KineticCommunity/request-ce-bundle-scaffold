@@ -3,7 +3,7 @@
 
 <bundle:layout page="${bundle.path}/layouts/layout.jsp">
     <bundle:variable name="head">
-        <title>${text.escape(i18n.translate(kapp.name))}&nbsp;${i18n.translate('Requests')}</title>
+        <bundle:variable name="pageTitle">${text.escape(i18n.translate('Requests'))}</bundle:variable>
     </bundle:variable>
     
     <h3>${i18n.translate('My Requests')}</h3>

@@ -2,7 +2,7 @@
 <%@include file="bundle/initialization.jspf" %>
 <bundle:layout page="layouts/layout.jsp">
     <bundle:variable name="head">
-        <title>${text.escape(i18n.translate(space.name))}&nbsp;${i18n.translate('Reset Password')}</title>
+        <bundle:variable name="pageTitle">${text.escape(i18n.translate('Reset Password'))}</bundle:variable>
     </bundle:variable>
 
     <c:choose>

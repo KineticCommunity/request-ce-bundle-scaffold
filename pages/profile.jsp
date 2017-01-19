@@ -3,7 +3,7 @@
 
 <bundle:layout page="${bundle.path}/layouts/layout.jsp">
     <bundle:variable name="head">
-        <title>${text.escape(i18n.translate(space.name))}&nbsp;${i18n.translate('Profile')}</title>
+        <bundle:variable name="pageTitle">${text.escape(i18n.translate('Profile'))}</bundle:variable>
     </bundle:variable>
     <bundle:scriptpack>
         <bundle:script src="${bundle.location}/js/profile.js" />

@@ -2,7 +2,7 @@
 <%@include file="bundle/initialization.jspf" %>
 <bundle:layout page="layouts/form.jsp">
     <bundle:variable name="head">
-        <title>${text.escape(i18n.translate(form, form.name))}</title>
+        <bundle:variable name="pageTitle">${text.escape(i18n.translate(form, form.name))}</bundle:variable>
     </bundle:variable>
     <section class="page">
         <div class="page-header">

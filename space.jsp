@@ -3,7 +3,7 @@
 <%@include file="bundle/router.jspf" %>
 <bundle:layout page="layouts/layout.jsp">
     <bundle:variable name="head">
-        <title>${text.escape(i18n.translate(space.name))}&nbsp;${i18n.translate('Kapps')}</title>
+        <bundle:variable name="pageTitle">${text.escape(i18n.translate('Home'))}</bundle:variable>
     </bundle:variable>
 
     <h1>

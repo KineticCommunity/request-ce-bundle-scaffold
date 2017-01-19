@@ -2,7 +2,7 @@
 <%@include file="bundle/initialization.jspf" %>
 <bundle:layout page="layouts/layout.jsp">
     <bundle:variable name="head">
-        <title>${text.escape(i18n.translate(kapp.name))}&nbsp;${i18n.translate('Login')}</title>
+        <bundle:variable name="pageTitle">${text.escape(i18n.translate('Login'))}</bundle:variable>
     </bundle:variable>
     <div class="container">
         <div class="row">

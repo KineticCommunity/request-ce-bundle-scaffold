@@ -5,7 +5,7 @@
 </c:catch>
 <bundle:layout page="${bundle.path}/layouts/layout.jsp">
     <bundle:variable name="head">
-        <title>${text.escape(i18n.translate(submission.form, submission.form.name))}</title>
+        <bundle:variable name="pageTitle">${text.escape(i18n.translate(submission.form, submission.form.name))}</bundle:variable>
     </bundle:variable>
     
     <c:choose>
