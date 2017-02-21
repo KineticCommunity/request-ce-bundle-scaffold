@@ -1,39 +1,140 @@
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *   Forms
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
- 
+
+input[type='text'], input[type='password'], textarea, select {
+  @include border-radius(6px);
+  -webkit-appearance: none;
+  color: inherit;
+  display: block;
+  text-decoration: none;
+  width: 100%;
+  background: rgb(248, 248, 248);
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgb(229, 229, 229);
+  border-image: initial;
+  outline: 0px;
+  padding: 0px 1em;
+  &:focus {
+    border-color: $gray;
+  }
+}
+
+input[type='text'], input[type='password'], select {
+  line-height: 2rem;
+}
+
+input:disabled, select:disabled,
+textarea:disabled, checkbox:disabled,
+radio:disabled {
+  color: $text-color!important;
+}
+
 .form-group.required label:after {
   content: '*';
   color: red;
 }
-    
+.form-group:after {
+  content:" ";
+  display:block;
+  clear:both;
+}
+
 label {
-  color: rgba($black, 0.75);
+  color: $darkgray;
   display: block;
   @include font-size(1.4rem);
   font-weight: 600;
   margin-top: 5px;
   margin-bottom: 0px;
 }
-
-.radio label:first-child,
-.checkbox label:first-child {
-  padding-left: 0;
+label.field-label {
+  padding: 0;
+  width: 100%;
+  float: left;
+}
+.radio label, .checkbox label {
+  margin-bottom: 0;
+  margin: 0 0 1rem 0;
+  font-weight: 600;
+  cursor: pointer;
+}
+.radio label:first-child:not(.field-label),
+.checkbox label:first-child:not(.field-label) {
+  margin-right: 2rem;
+  margin-left: 1rem;
 }
 
+.radio:after,
+.checkbox:after {
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    content: " ";
+    clear: both;
+}
+
+.section-container{
+  border-bottom: 1px solid $primary-complement;
+  padding-bottom: 2rem;
+}
+
+/* Requested For search display
+ *-------------------------------------- */
+.requested-for-display-name {
+  label {
+    color: $primary;
+    padding-left: 0;
+  }
+  span.fa.fa-edit {
+    cursor: pointer;
+  }
+  .display-info {
+    padding: 0;
+  }
+}
+
+.tt-menu {
+  background-color: $white;
+  padding: .5rem;
+  border: 1px solid $lightestgray;
+  .fa.pull-left {
+    margin: 0;
+  }
+}
+.tt-input {
+  min-height: 3rem;
+  border: 1px solid $lightgray;
+  width: 35rem;
+}
+
+/* Section Page > Form
+ *-------------------------------------- */
 section.page {
   form {
     margin-left: 0;
-    padding: 2.4rem;
     font-weight: 400;
     overflow: hidden;
-    background: $white;
-    -webkit-box-shadow: 0 0.1rem 0.3rem rgba($black, 0.13);
-    box-shadow: 0 0.1rem 0.3rem rgba($black, 0.13);
+    padding: 1rem 1rem 2rem 1rem;
+    background-color: $white;
+    @include border-radius(6px);
+    h1{
+      padding:0 0 1rem;
+    }
+    .section-container{
+      display: block;
+      margin-bottom: 2rem;
+    }
 
+    .radio label:not(.field-label), .checkbox label:not(.field-label) {
+      float: left;
+      margin-right: 1rem;
+      margin-left: .1rem;
+    }
     button {
       @extend .btn;
-      
+
       &[data-button-type='previous-page']{
         position: relative;
         padding-left: 2.4rem;
@@ -55,7 +156,7 @@ section.page {
         line-height: 1;
         margin-top: -0.7rem;
       }
-      
+
       &[data-button-type='save']{
         position: relative;
         padding-left: 2.8rem;
@@ -77,7 +178,7 @@ section.page {
         line-height: 1;
         margin-top: -0.7rem;
       }
-      
+
       &[data-button-type='custom']{
         background-color: $white;
         border-color: $lightgray;
@@ -87,39 +188,74 @@ section.page {
         }
       }
     }
-    
+
     /* Attachment files
      *-------------------------------------- */
+    .attachment {
+      background-color: $white;
+      @include border-radius(6px);
+      padding: .5rem 1rem;
+      width: 70%;
+      clear: both;
+      label {
+        margin-bottom: .5rem;
+        border: none;
+        &:after {
+          font-family: 'FontAwesome';
+          content:"\f093;";
+          display:block;
+          clear:both;
+        }
+      }
+      label:after {
+        content:" ";
+        display:block;
+        clear:both;
+      }
+      &.empty {
+        .file-table {
+          display: none;
+        }
+      }
+    }
     .file-table {
       display: table;
       margin: 0px;
       padding: 0px;
-      
+
       .file-header {
         display: table-header-group;
-        span {
-          background-color: $lightestgray;
-        }
+        color: $darkgray;
       }
-      
-      .file-container {
-        display: table-row-group;
-      }
-    
       .file-row {
         display: table-row;
         > span {
-          list-style:none;
           display: table-cell;
-          border: 1px solid #000;
-          padding: 0.3rem 1.2rem;
-          &:not(:first-child) {
-            border-left: none;
+          padding: .5rem;
+          > a {
+            padding: 0 .5rem;
           }
         }
-        &:not(:first-child) > span {
-          border-top: none;
-        }
+      }
+      .file-container {
+        display: table-row-group;
+      }
+    }
+  }
+}
+
+/* Media Queries
+ *-------------------------------------- */
+
+@media (max-width: 991px) {
+  label.field-label {
+    width: 100%;
+    float: none;
+  }
+  section.page {
+    form {
+      .attachment {
+        width: 100%;
       }
     }
   }

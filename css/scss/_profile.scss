@@ -1,0 +1,44 @@
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ *   Profile
+ *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+div.container > div.profile {
+  
+  > div.profile-content {
+    
+    table {
+      margin-bottom: 0;
+    
+      tfoot td {
+        padding: 0;
+      }        
+    }
+    
+    input + input {
+      margin-top: 5px;
+    }
+    
+    div.attribute-description {
+      font-size: 85%;
+      color: #666666;
+    }
+  }
+}
+
+@media (min-width: 768px) {
+  div.container > div.profile {
+    
+    > div.profile-content {
+      margin-right: 215px;
+    }
+
+    > div.profile-image {
+      float: right;
+      max-width: 200px;
+    
+      > div > label {
+        margin-top: 0px;
+      }
+    }
+  }
+}

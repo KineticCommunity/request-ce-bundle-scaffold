@@ -2,6 +2,23 @@
  *   Navs
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
+/* Nav Tabs Elements
+ *-------------------------------------- */
+.nav-tabs {
+  li a {
+    color: $gray;
+  }
+  li.active a,
+  li.active > a:hover,
+  li.active > a:focus, {
+    background-color: transparent;
+    color: $tertiary;
+    border: none;
+    font-weight: bold;
+    border-bottom: 2px solid $tertiary;
+  }
+}
+
 /* Nav Pills Elements
  *-------------------------------------- */
 .nav-pills > li > a {
@@ -23,7 +40,7 @@
   color: rgb(66, 139, 202);
   background-color: transparent;
   border-color: transparent;
-  border-bottom: 0.4rem solid rgba($primary, 0.5);  
+  border-bottom: 0.4rem solid rgba($primary, 0.5);
 }
 .nav-pills > li.active > a,
 .nav-pills > li.active > a:hover,

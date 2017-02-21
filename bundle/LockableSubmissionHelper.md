@@ -11,12 +11,12 @@ set of "system fields" (fields that do not display in the page content, often im
 on a page that is after the confirmation page) that are used to manage visibility and lock state.
 These fields are:
 
-* `Assigned Group`
+* `Assigned Team`
 * `Assigned Individual`
 * `Locked By`
 * `Locked Until`
 
-Setting the `Assigned Group` and `Assigned Individual` field values is outside the scope of this 
+Setting the `Assigned Team` and `Assigned Individual` field values is outside the scope of this 
 document, but these will often be initialized when Kinetic Task first creates the 
 Approval/Fulfillment/Ticket submission or changed by updating the submission itself.
 
@@ -86,7 +86,7 @@ identity('authenticated')
 
 By default the LockableSubmissionHelper will search for all submissions of the specified type that 
 have the current user as the `Assigned Individual` or that have one of the current users groups as 
-the `Assigned Group`.  
+the `Assigned Team`.  
 
 If group management is being done via User attributes, than the LockableSubmissionHelper needs to be
 initialized with what the name of the group attribute is.
@@ -95,7 +95,7 @@ Additionally, if assignment delegation is being managed by attributes, the Locka
 can be initialized with the name of the delegation attribute.  If this is set, the search query will
 search for all submissions that have the current user as the `Assigned Individual`, that have anyone 
 specified in the current user's list of delegation attributes as the `Assigned Individual`, or that 
-have one of the current user's groups as the `Assigned Group`.
+have one of the current user's groups as the `Assigned Team`.
 
 **bundle/initialization.jspf** *default*  
 ```jsp

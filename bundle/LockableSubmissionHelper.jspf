@@ -125,7 +125,7 @@
             // Prepare the query string
             StringBuffer query = new StringBuffer();
             if (groups.size() > 0) {
-                query.append("(values[Assigned Group] IN (");
+                query.append("(values[Assigned Team] IN (");
                 query.append(toValuesListString(groups));
                 query.append(") AND values[Assigned Individual]=null) OR ");
             }

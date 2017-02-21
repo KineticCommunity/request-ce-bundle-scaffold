@@ -294,6 +294,9 @@
              * Helper function for counting how many time a string 'sub' appears in another string 'str'
              */
             private static int countMatches(String str, String sub){
+                if (str == null || sub == null){
+                    return 0;
+                }
                 str = str.toLowerCase();
                 sub = sub.toLowerCase();
                 int index = str.indexOf(sub);

@@ -21,7 +21,7 @@
 
 <%-- Get bundle, space, and kapp objects --%>
 <%
-    Bundle bundle = (Bundle)request.getAttribute("bundle"); 
+    Bundle bundle = (Bundle)request.getAttribute("bundle");
     Space space = (Space)request.getAttribute("space");
     Kapp kapp = (Kapp)request.getAttribute("kapp");
     Identity identity = (Identity)request.getAttribute("identity");
@@ -29,32 +29,41 @@
 
 <%-- Load helper(s) --%>
 <%
-    request.setAttribute("json", new com.kineticdata.bundles.JsonHelper());
-    request.setAttribute("text", new com.kineticdata.bundles.TextHelper());
-    request.setAttribute("time", new com.kineticdata.bundles.TimeHelper());
+    if (request.getAttribute("json") == null) {
+        request.setAttribute("json", new com.kineticdata.bundles.JsonHelper());
+    }
+    if (request.getAttribute("text") == null) {
+        request.setAttribute("text", new com.kineticdata.bundles.TextHelper());
+    }
+    if (request.getAttribute("time") == null) {
+        request.setAttribute("time", new com.kineticdata.bundles.TimeHelper());
+    }
 %>
 
 <%-- I18nHelper --%>
 <%@include file="I18nHelper.jspf"%>
 <%
-    I18nHelper i18nHelper = new I18nHelper(request);
-    request.setAttribute("i18n", i18nHelper);
-    request.setAttribute("locale", i18nHelper.getLocale());
-    request.setAttribute("zoneId", i18nHelper.getZoneId());
+    if (request.getAttribute("zoneId") == null || request.getAttribute("i18n") == null || request.getAttribute("locale") == null) {
+        I18nHelper i18nHelper = new I18nHelper(request);
+        request.setAttribute("i18n", i18nHelper);
+        request.setAttribute("locale", i18nHelper.getLocale());
+        request.setAttribute("zoneId", i18nHelper.getZoneId());
+    }
 %>
 
 <%-- SetupHelper --%>
 <%@include file="SetupHelper.jspf"%>
 <%
-    SetupHelper setupHelper = new SetupHelper(request);
-    request.setAttribute("SetupHelper", setupHelper);
+    if (request.getAttribute("SetupHelper") == null) {
+        request.setAttribute("SetupHelper", new SetupHelper(request));
+    }
 %>
 
 <%-- BridgedResourceHelper --%>
 <%@include file="BridgedResourceHelper.jspf" %>
 <%
     // If the request is scoped to a specific Kapp (space display pages are not)
-    if (kapp != null && kapp.hasAttribute("Shared Bridged Resource Form Slug")) {
+    if (kapp != null && kapp.hasAttribute("Shared Bridged Resource Form Slug") && request.getAttribute("BridgedResourceHelper") == null) {
         // Initialize the BridgedResourceHelper
         request.setAttribute("BridgedResourceHelper", 
             new BridgedResourceHelper(
@@ -67,19 +76,25 @@
 <%-- BundleHelper --%>
 <%@include file="BundleHelper.jspf"%>
 <%
-    request.setAttribute("BundleHelper", new BundleHelper(bundle, kapp, space));
+    if (request.getAttribute("BundleHelper") == null) {
+        request.setAttribute("BundleHelper", new BundleHelper(bundle, kapp, space));
+    }
 %>
 
 <%-- CatalogSearchHelper --%>
 <%@include file="CatalogSearchHelper.jspf"%>
 <%
-    request.setAttribute("CatalogSearchHelper", new CatalogSearchHelper(request));
+    if (request.getAttribute("CatalogSearchHelper") == null) {
+        request.setAttribute("CatalogSearchHelper", new CatalogSearchHelper(request));
+    }
 %>
 
 <%-- CategoryHelper --%>
 <%@include file="CategoryHelper.jspf"%>
 <%
-    request.setAttribute("CategoryHelper", new CategoryHelper());
+    if (request.getAttribute("CategoryHelper") == null) {
+        request.setAttribute("CategoryHelper", new CategoryHelper());
+    }
 %>
 
 <%-- FilehubHelper --%>
@@ -123,7 +138,7 @@
 <%@include file="LockableSubmissionHelper.jspf"%>
 <%
     // If the request is scoped to a specific Kapp (space display pages are not)
-    if (kapp != null) {
+    if (kapp != null && request.getAttribute("LockableSubmissionHelper") == null) {
         // Initialize the LockableSubmissionHelper
         LockableSubmissionHelper lockableSubmissionHelper = new LockableSubmissionHelper(request);
         if (kapp.hasAttribute("Lockable Submission Delegation Attribute")) {
@@ -141,5 +156,15 @@
 <%-- SubmissionHelper --%>
 <%@include file="SubmissionHelper.jspf"%>
 <%
-    request.setAttribute("SubmissionHelper", new SubmissionHelper(request));
+    if (request.getAttribute("SubmissionHelper") == null) {
+        request.setAttribute("SubmissionHelper", new SubmissionHelper(request));
+    }
+%>
+
+<%-- GravatarHelper --%>
+<%@include file="GravatarHelper.jspf"%>
+<%
+    if (request.getAttribute("GravatarHelper") == null) {
+        request.setAttribute("GravatarHelper", new GravatarHelper(request));
+    }
 %>

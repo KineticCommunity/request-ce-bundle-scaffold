@@ -1,25 +1,12 @@
-<%-- AUTHENTICATION REQUIRED AND USER IS ANONYMOUS --%>
-<%
-    if (kapp == null && identity.isAnonymous() && !"Yes".equalsIgnoreCase(space.getAttributeValue("Allow Anonymous"))) {
-        response.sendRedirect(bundle.getSpaceLocation()+"/app/login");
-        return;
-    } else if (kapp != null && identity.isAnonymous() && !"Yes".equalsIgnoreCase(kapp.getAttributeValue("Allow Anonymous"))) {
-        response.sendRedirect(bundle.getSpaceLocation()+"/app/login?kapp="+kapp.getSlug());
-        return;
-    }
-%>
-
-<%
-    // String to store the path to the JSP that the response should be delegated to
-    String delegateJsp = null;
-%>
-
 <%-- INVALID CONFIGURATION ROUTING --%>
 <%
     // If the request is scoped to a specific Kapp (space display pages are not)
     if (kapp != null) {
+        SetupHelper setupHelper = (SetupHelper)request.getAttribute("SetupHelper");
         // If kapp is not configured, there are missing required attributes, or setup parameter is present
         if (setupHelper.routeToSetup() != null) {
+            // Declare the delegate jsp variable
+            String delegateJsp = null;
             // Render the setup page (this will show the full setup page if the user is a space 
             // admin, or it will show a generic error message if they are not)
             try {
@@ -58,11 +45,16 @@
         throw new RuntimeException("Multiple 'page' or 'partial' parameters provided by the "+
             "request. This is potentially due to recursively importing or including a routed "+
             "kapp page.");
-    } 
-    // Otherwise delegate to appropriate page or partial
-    else if (request.getParameter("page") != null) {
+    }
+
+    // Determine the delegate jsp
+    String delegateJsp = null;
+    // If the call is to render a page
+    if (request.getParameter("page") != null) {
         delegateJsp = bundle.getPath()+"/pages/"+request.getParameter("page")+".jsp";
-    } else if (request.getParameter("partial") != null) {
+    }
+    // If the call is to render a partial
+    else if (request.getParameter("partial") != null) {
         delegateJsp = bundle.getPath()+"/partials/"+request.getParameter("partial")+".jsp";
     }
     

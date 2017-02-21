@@ -1,91 +1,145 @@
 (function($){
+    /*----------------------------------------------------------------------------------------------
+     * DOM MANIPULATION AND EVENT REGISTRATION 
+     *   This section is executed on page load to register events and otherwise manipulate the DOM.
+     *--------------------------------------------------------------------------------------------*/
     $(function(){
-        /**
-         * Handle click event to toggle visibility of chnage password section
-         */
-        $("#password-toggle").on("click", function(event){
-            $("#password-section").toggle();
-            $("#password-toggle span").toggle();
-            $("#password-section input").val("");
-            event.preventDefault();
+        
+        // Enable adding multiple profile attribute values for those with allowsMultiplt = true
+        $("div.profile-content a.add-multiple-attribute").on("click", profile.addMultipleAttributeInput);   
+        
+        // Enable toggling of change password section
+        $("#password-toggle").on("click", profile.enablePasswordToggle);
+        
+        // Save the user
+        $("div.profile button.save-profile-btn").on("click", profile.saveUser);
+        
+    });
+    
+    /*----------------------------------------------------------------------------------------------
+     * COMMON INIALIZATION 
+     *   This code is executed when the Javascript file is loaded
+     *--------------------------------------------------------------------------------------------*/
+   
+    // Private namespace for profile
+    var profile = new Object();
+    
+    profile.addMultipleAttributeInput = function(e){
+        $(this).closest("div").before(
+            $("<input>", {
+                name: "profileAttributes", 
+                "data-attribute": $(this).data("attribute"), 
+                class: "form-control"
+            })
+        );
+    };
+    
+    profile.enablePasswordToggle = function(e){
+        $("#password-section").toggle();
+        $("#password-toggle span, #password-toggle-hr").toggle();
+        $("#password-section input").val("");
+        $(this).blur();
+    };
+    
+    profile.saveUser = function(e){
+        // If the passwords don't match, show error
+        if ($("input[name=password]").val() !== $("input[name=passwordConfirmation]").val()){
+            $("input[name=password]").notifie({
+                anchor: "div",
+                message: K.translate("bundle", "Passwords do not match."),
+                exitEvents: "keyup"
+            });
+            return;
+        }
+        
+        var user = {
+            displayName: $("input[name=displayName]").val(),
+            email: $("input[name=email]").val(),
+            preferredLocale: $("select[name=preferredLocale]").val(),
+            profileAttributes: new Array()
+        };
+        if ($("input[name=password]").val().length > 0){
+            user.password = $("input[name=password]").val();
+        }
+        
+        var profileAttributes = new Object();
+        $("input[name=profileAttributes]").each(function(i, input){
+            var name = $(input).data("attribute");
+            var value = $(input).val();
+            if (value.trim().length > 0){
+                if (!profileAttributes[name]){
+                    profileAttributes[name] = new Array();
+                }
+                profileAttributes[name].push(value.trim());
+            }
+        });
+        $.each(profileAttributes, function(name, value){
+            if (name && value && value.length > 0){
+                user.profileAttributes.push({
+                    name: name,
+                    values: value
+                });
+            }
         });
         
-        /**
-         * Handle click event to save profile
-         */
-        $("button.save-profile").on("click", function(e){
-            // If the passwords don't match, show error
-            if ($("input#password").val() !== $("input#passwordConfirmation").val()){
-                $("input#password").notifie({
-                    anchor: "div",
-                    message: K.translate("bundle", "Passwords do not match."),
-                    exitEvents: "focus"
+        profile.updateMe(user);
+    };
+    
+    profile.updateMe = function(data){
+        // Update current user
+        $.ajax({
+            method: "put",
+            dataType: "json",
+            url: bundle.apiLocation()+"/me",
+            data: JSON.stringify(data),
+            beforeSend: function(jqXHR, settings){
+                // Disable save button and close all notifications
+                $("div.profile button.save-profile-btn").prop("disabled", true);
+                $("div.profile").notifie({
+                    exit: true,
+                    recurseExit: true
                 });
-                return;
-            }
-            // Build data object to save
-            var data = {
-                displayName: $("input#displayName").val().trim(),
-                email: $("input#email").val().trim(),
-                preferredLocale: $("select#preferredLocale").val()
-            };
-            // If password is entered, add it to data object
-            if ($("input#password").val().length > 0){
-                data.password = $("input#password").val();
-            }
-            // Save the data
-            $.ajax({
-                method: "put",
-                dataType: "json",
-                url: bundle.apiLocation()+"/me",
-                data: JSON.stringify(data),
-                beforeSend: function(jqXHR, settings){
-                    // Disable save button and close all notifications
-                    $("button.save-profile").prop("disabled", true);
-                    $("div.profile").notifie({
-                        exit: true,
-                        recurseExit: true
-                    });
-                },
-                success: function(data, textStatus, jqXHR){
-                    // Build success notification options
-                    var notification = {
-                        severity: "success",
-                        message: K.translate("bundle", "Successfully updated user profile for NAME").replace("NAME", data.user.displayName)
+            },
+            success: function(data, textStatus, jqXHR){
+                // Build success notification options
+                var notification = {
+                    severity: "success",
+                    message: K.translate("bundle", "Successfully updated user profile for NAME").replace("NAME", data.user.displayName)
+                };
+                // If locale changed reload page in 5 seconds
+                if(bundle.config.userLocale !== data.user.preferredLocale){
+                    // Add message that page will reload
+                    notification.message += "<br>" 
+                        + K.translate("bundle", "The page will reload in NUMBER seconds due to the change in preferred language.")
+                           .replace("NUMBER", "<span class='reload-timer'>5</span>");
+                    // Call method on show that updates countdown timer and reloads after 5 seconds
+                    notification.onShow = function(n){
+                        (function countdown(remaining, span) {
+                            if(remaining <= 0){
+                                location.reload(true);
+                            }
+                            $(span).text(remaining);
+                            setTimeout(function(){ countdown(remaining - 1, span); }, 1000);
+                        })(5, n.find("span.reload-timer"));
                     };
-                    // If locale changed reload page in 5 seconds
-                    if(bundle.config.userLocale !== data.user.preferredLocale){
-                        // Add message that page will reload
-                        notification.message += "<br>" 
-                            + K.translate("bundle", "The page will reload in NUMBER seconds due to the change in preferred language.")
-                               .replace("NUMBER", "<span class='reload-timer'>5</span>");
-                        // Call method on show that updates countdown timer and reloads after 5 seconds
-                        notification.onShow = function(n){
-                            (function countdown(remaining, span) {
-                                if(remaining <= 0){
-                                    location.reload(true);
-                                }
-                                $(span).text(remaining);
-                                setTimeout(function(){ countdown(remaining - 1, span); }, 1000);
-                            })(5, n.find("span.reload-timer"));
-                        };
-                    }
-                    // Otherwise, expire success notification after 5 seconds
-                    else {
-                        notification.expire = 5000;
-                    }
-                    // Show notification
-                    $("div.profile").notifie(notification);
-                },
-                error: function(jqXHR, textStatus, errorThrown){
-                    $("div.profile").notifie({
-                        message: K.translate("bundle", "Failed to save changes.")
-                    });
-                },
-                complete: function(jqXHR, settings){
-                    $("button.save-profile").prop("disabled", false);
                 }
-            });
+                // Otherwise, expire success notification after 5 seconds
+                else {
+                    notification.expire = 5000;
+                }
+                // Show notification
+                $("div.profile").notifie(notification);
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                $("div.profile").notifie({
+                    message: K.translate("bundle", "Failed to update user profile.")
+                });
+            },
+            complete: function(jqXHR, settings){
+                $("div.profile button.save-profile-btn").prop("disabled", false);
+            }
         });
-    });
+    };
+    
+    
 })(jQuery);
