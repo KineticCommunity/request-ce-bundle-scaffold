@@ -48,13 +48,13 @@
                             </a>
                             <ul class="dropdown-menu show-xs priority" aria-labelledby="userMenu">
                                 <li class="hidden-xs">
-                                    <a href="${bundle.spaceLocation}/?page=profile">
+                                    <a href="${bundle.spaceLocation}?page=profile">
                                         <span class="fa fa-pencil fa-fw"></span>
                                         <span>${i18n.translate('Edit Profile')}</span>
                                     </a>
                                 </li>
                                 <li class="priority hidden-lg hidden-md hidden-sm">
-                                    <a href="${bundle.spaceLocation}/?page=profile">
+                                    <a href="${bundle.spaceLocation}?page=profile">
                                         <span class="fa fa-user fa-fw"></span> 
                                         <span>${i18n.translate('Profile')}</span>
                                     </a>

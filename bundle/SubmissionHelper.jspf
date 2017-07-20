@@ -1,7 +1,10 @@
+<%@page import="com.kineticdata.bundles.*"%>
+<%@page import="com.kineticdata.core.models.*"%>
+<%@page import="com.kineticdata.core.web.bundles.BundleSubmissionComponent"%>
+<%@page import="com.kineticdata.core.web.bundles.PaginatedList"%>
+<%@page import="java.util.*"%>
 <%!
-
     public static class SubmissionHelper {
-
         private HttpServletRequest request;
         private BundleSubmissionComponent submissionComponent;
         private Kapp kapp;
@@ -16,21 +19,21 @@
             return retrieveRecentSubmissions(type, null, null);
         }
 
-        public List<Submission> retrieveRecentSubmissions(String type, int number) {
-            return retrieveRecentSubmissions(type, null, number);
+        public List<Submission> retrieveRecentSubmissions(String type, int limit) {
+            return retrieveRecentSubmissions(type, null, limit);
         }
         
          public List<Submission> retrieveRecentSubmissions(String type, String coreState) {
             return retrieveRecentSubmissions(type, coreState, null);
         }
 
-        public List<Submission> retrieveRecentSubmissions(String type, String coreState, Integer number) {
+        public List<Submission> retrieveRecentSubmissions(String type, String coreState, Integer limit) {
             com.kineticdata.core.authentication.Identity identity =
                 (com.kineticdata.core.authentication.Identity) request.getAttribute("identity");
 
             java.time.Instant end = Time.now();
             java.time.Instant start = Time
-                .subtract(end, 30, "days", java.time.ZoneId.systemDefault());
+                .subtract(end, 60, "days", java.time.ZoneId.systemDefault());
 
             java.util.Map<String,String[]> searchOptions = new java.util.HashMap<>();
 
@@ -40,8 +43,8 @@
             if (coreState != null) {
                 searchOptions.put("coreState", new String[] {coreState});
             }
-            if (number != null) {
-                searchOptions.put("limit", new String[] {String.valueOf(number)});
+            if (limit != null) {
+                searchOptions.put("limit", new String[] {String.valueOf(limit)});
             }
             if("Approval".equals(type)){
                 searchOptions.put("values[Assigned Individual]", new String[] {identity.getUsername()});
@@ -50,6 +53,260 @@
             }
 
             return submissionComponent.searchByKapp(kapp, searchOptions);
+        }
+
+        public List<Submission> retriveRecentSubmissionsByForm(Form form){
+            return retriveRecentSubmissionsByForm(form, null);
+        }
+
+        public List<Submission> retriveRecentSubmissionsByForm(Form form, Integer limit){
+            com.kineticdata.core.authentication.Identity identity =
+                (com.kineticdata.core.authentication.Identity) request.getAttribute("identity");
+
+            java.time.Instant end = Time.now();
+            java.time.Instant start = Time
+                .subtract(end, 60, "days", java.time.ZoneId.systemDefault());
+
+            java.util.Map<String,String[]> searchOptions = new java.util.HashMap<>();
+
+            searchOptions.put("end", new String[] {Time.format(end)} );
+            searchOptions.put("start", new String[] {Time.format(start)} );
+            if (limit != null) {
+                searchOptions.put("limit", new String[] {String.valueOf(limit)});
+            }
+            searchOptions.put("createdBy", new String[] {identity.getUsername()});
+
+            return submissionComponent.searchByForm(form, searchOptions);
+        }
+
+        public PaginatedList<Submission> getPaginatedSubmissionsForMe(String type, String coreState){
+            return getPaginatedSubmissionsForMe(type, coreState, null, null);
+        }
+        public PaginatedList<Submission> getPaginatedSubmissionsForMe(String type, String coreState, Integer limit){
+            return getPaginatedSubmissionsForMe(type, coreState, limit, null);
+        }
+        public PaginatedList<Submission> getPaginatedSubmissionsForMe(String type, String coreState, Integer limit, String pageToken){
+            com.kineticdata.core.authentication.Identity identity =
+                (com.kineticdata.core.authentication.Identity) request.getAttribute("identity");
+
+            java.util.Map<String,String[]> searchOptions = new java.util.HashMap<>();
+            
+            searchOptions.put("type", new String[] {type});
+
+            // User select the number of record to see in the table display.  By default they see 10.
+            if (limit != null) {
+                searchOptions.put("limit", new String[] {String.valueOf(limit)});
+            }else{
+                searchOptions.put("limit",new String[]{"10"});
+            }
+
+            // If a page token exist in the request 
+            if(pageToken != null){
+                searchOptions.put("pageToken", new String[]{pageToken});
+            }
+
+            searchOptions.put("values[Requested For]", new String[] {"Me"});
+
+            if(coreState != null){
+                searchOptions.put("coreState", new String[] {coreState});
+            }
+
+            PaginatedList<Submission> page;
+            page = this.submissionComponent.searchByKapp(kapp, searchOptions);
+            return page;
+        }
+        public PaginatedList<Submission> getPaginatedSubmissionsForOthers(String type, String coreState){
+            return getPaginatedSubmissionsForMe(type, coreState, null, null);
+        }
+        public PaginatedList<Submission> getPaginatedSubmissionsForOthers(String type, String coreState, Integer limit){
+            return getPaginatedSubmissionsForMe(type, coreState, limit, null);
+        }
+
+        public PaginatedList<Submission> getPaginatedSubmissionsForOthers(String type, String coreState, Integer limit, String pageToken){
+            com.kineticdata.core.authentication.Identity identity =
+                (com.kineticdata.core.authentication.Identity) request.getAttribute("identity");
+
+            java.util.Map<String,String[]> searchOptions = new java.util.HashMap<>();
+            
+            searchOptions.put("type", new String[] {type});
+
+            // User select the number of record to see in the table display.  By default they see 10.
+            if (limit != null) {
+                searchOptions.put("limit", new String[] {String.valueOf(limit)});
+            }else{
+                searchOptions.put("limit",new String[]{"10"});
+            }
+
+            // If a page token exist in the request 
+            if(pageToken != null){
+                searchOptions.put("pageToken", new String[]{pageToken});
+            }
+
+            searchOptions.put("values[Requested By]", new String[] {"Me"});
+
+            if(coreState != null){
+                searchOptions.put("coreState", new String[] {coreState});
+            }
+
+            PaginatedList<Submission> page;
+            page = this.submissionComponent.searchByKapp(kapp, searchOptions);
+            return page;
+        }
+
+        /* *
+         * My Submissions include submissions where Requested For = currentUser OR
+         * Submitted By = current User
+         * */
+        public PaginatedList<Submission> getMyPaginatedSubmissions(String type){
+            return getMyPaginatedSubmissions(type, null, null, null);
+        }
+        public PaginatedList<Submission> getMyPaginatedSubmissions(String type, String coreState){
+            return getMyPaginatedSubmissions(type, coreState, null, null);
+        }
+        public PaginatedList<Submission> getMyPaginatedSubmissions(String type, String coreState, Integer limit){
+            return getMyPaginatedSubmissions(type, coreState, limit, null);
+        }
+        public PaginatedList<Submission> getMyPaginatedSubmissions(String type, String coreState, Integer limit, String pageToken){
+
+            // Normalize the parameters so that ${param.OPTIONAL_PARAMETER} can be used (for some 
+            // reason, JSTL returns empty string for missing parameters rather than null)
+            if ("".equals(type)) { type = null; }
+            if ("".equals(coreState)) { coreState = null; }
+            if ("".equals(pageToken)) { pageToken = null; }
+
+            com.kineticdata.core.authentication.Identity identity =
+                (com.kineticdata.core.authentication.Identity) request.getAttribute("identity");
+
+            java.util.Map<String,String[]> searchOptions = new java.util.HashMap<>();
+            
+            searchOptions.put("type", new String[] {type});
+
+            // User select the number of record to see in the table display.  By default they see 10.
+            if (limit != null) {
+                searchOptions.put("limit", new String[] {String.valueOf(limit)});
+            }else{
+                searchOptions.put("limit",new String[]{"10"});
+            }
+            
+            // If a page token exist in the request 
+            if(pageToken != null){
+                searchOptions.put("pageToken", new String[]{pageToken});
+            }
+            // Qualification
+            String qualification = "(submittedBy = \"" + identity.getUsername() + "\" OR values[Requested For] = \"" + identity.getUsername() + "\")";
+            searchOptions.put("q", new String[] {qualification});
+            if(coreState != null){
+                searchOptions.put("coreState", new String[] {coreState});
+            }
+
+            PaginatedList<Submission> page;
+            page = this.submissionComponent.searchByKapp(kapp, searchOptions);
+            return page;
+        }
+        
+        /************************************************************
+         * REQUEST COUNT METHODS
+         ************************************************************/
+
+        public Integer retriveCatalogOpenRequestCount(Kapp catalogKapp, String formType){
+            java.util.Map<String,String[]> searchOptions = new java.util.HashMap<>();
+
+            Identity identity = (Identity)request.getAttribute("identity");
+            String qualification = "(submittedBy = \"" + identity.getUsername() + "\" OR values[Requested For] = \"" + identity.getUsername() + "\")";
+            searchOptions.put("q", new String[] {qualification});
+
+            if (Text.isNotBlank(formType)){
+                searchOptions.put("type", new String[] {formType});
+            }
+            searchOptions.put("coreState", new String[] {"Submitted"} );
+            searchOptions.put("limit", new String[] {String.valueOf(1000)});
+
+            return submissionComponent.searchByKapp(catalogKapp, searchOptions).size(); 
+        }
+
+        public Integer retriveCatalogDraftRequestCount(Kapp catalogKapp, String formType){
+            java.util.Map<String,String[]> searchOptions = new java.util.HashMap<>();
+
+            Identity identity = (Identity)request.getAttribute("identity");
+            String qualification = "(createdBy = \"" + identity.getUsername() + "\")";
+            searchOptions.put("q", new String[] {qualification});
+
+            if (Text.isNotBlank(formType)){
+                searchOptions.put("type", new String[] {formType});
+            }
+            searchOptions.put("coreState", new String[] {"Draft"} );
+            searchOptions.put("limit", new String[] {String.valueOf(1000)});
+
+            return submissionComponent.searchByKapp(catalogKapp, searchOptions).size(); 
+        }
+
+        /************************************************************
+         * Helper Methods for getting data our of submissions
+         ************************************************************/
+
+         /**
+         * Returns the status of the submission, or the core state if status field is not found
+         */
+        public String getStatus(Submission submission) {
+            String value = null;
+            if (submission.getForm().getField("Status") != null){
+                value = submission.getValue("Status");
+                if (value != null && value.equals("Draft") && submission.getCoreState().equals("Submitted")) {
+                    value = "Submitted";
+                }
+            }
+            if (value == null) {
+                value = submission.getCoreState();
+            }
+            return value;
+        }
+        
+        /**
+         * Returns the class used to style the status or state of the submission
+         */
+        public String getStatusClass(Submission submission) {
+            String className;
+            if (submission.getForm().getField("Status") != null && submission.getValue("Status") != null) {
+                List<String> activeStatuses = (submission.getForm().getAttributeValues("Statuses - Active").size() > 0)
+                    ? submission.getForm().getAttributeValues("Statuses - Active")
+                    : submission.getKapp().getAttributeValues("Statuses - Active");
+                List<String> inactiveStatuses = (submission.getForm().getAttributeValues("Statuses - Inactive").size() > 0)
+                    ? submission.getForm().getAttributeValues("Statuses - Inactive")
+                    : submission.getKapp().getAttributeValues("Statuses - Inactive");
+                List<String> cancelledStatuses = (submission.getForm().getAttributeValues("Statuses - Cancelled").size() > 0)
+                    ? submission.getForm().getAttributeValues("Statuses - Cancelled")
+                    : submission.getKapp().getAttributeValues("Statuses - Cancelled");
+                if (activeStatuses.contains(getStatus(submission))) {
+                    className = "label-success";
+                } else if (inactiveStatuses.contains(getStatus(submission))) {
+                    className = "label-warning";
+                } else if (cancelledStatuses.contains(getStatus(submission))) {
+                    className = "label-danger";
+                } else {
+                    className = "label-default";
+                }
+            } else if ("Draft".equals(submission.getCoreState())) {
+                className = "label-warning";
+            } else if ("Submitted".equals(submission.getCoreState())) {
+                className = "label-success";
+            } else {
+                className = "label-default";
+            }
+            return className;
+        }
+
+        /**
+         * Helper Method for Getting Requester from Submitted By or Values
+         */
+        public String getRequester(Submission submission) {
+            String value = null;
+            if (submission.getForm().getField("Requested By") != null && submission.getValue("Requested By") != null){
+                value = submission.getValue("Requested By");
+            }
+            if (value == null) {
+                value = submission.getSubmittedBy();
+            }
+            return value;
         }
     }
 %>

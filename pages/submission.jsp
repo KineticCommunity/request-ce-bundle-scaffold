@@ -4,15 +4,15 @@
     <c:set var="submission" value="${Submissions.retrieve(param.id)}" scope="page"/>
 </c:catch>
 <bundle:layout page="${bundle.path}/layouts/layout.jsp">
-    <bundle:variable name="head">
-        <bundle:variable name="pageTitle">${text.escape(i18n.translate(submission.form, submission.form.name))}</bundle:variable>
-    </bundle:variable>
-    
     <c:choose>
         <c:when test="${submissionException != null}">
             ${i18n.translate('Error')}
         </c:when>
         <c:otherwise>
+            <bundle:variable name="head">
+                <bundle:variable name="pageTitle">${text.escape(i18n.translate(submission.form, submission.form.name))}</bundle:variable>
+            </bundle:variable>
+            
             <h3>${i18n.translate('Submission Details')}</h3>
             <section class="timeline">
                 <div class="row">

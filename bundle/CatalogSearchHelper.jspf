@@ -22,7 +22,12 @@
          *--------------------------------------------------------------------------------------------*/
           
         private HttpServletRequest request;
+        private Bundle bundle;
+        private Space space;
+        private Kapp kapp;
         private I18nHelper i18n;
+        
+        public static final String SEARCH_HISTORY_FORM_SLUG = "search-history";
         
         /*----------------------------------------------------------------------------------------------
          * CONSTRUCTOR
@@ -30,7 +35,34 @@
     
         public CatalogSearchHelper(HttpServletRequest request) {
             this.request = request;
+            this.bundle = (Bundle)request.getAttribute("bundle");
+            this.space = (Space)request.getAttribute("space");
+            this.kapp = (Kapp)request.getAttribute("kapp");
             this.i18n = (I18nHelper)request.getAttribute("i18n");
+        }
+        
+        /*----------------------------------------------------------------------------------------------
+         * CUSTOM FORM FILTER METHOD(S) - Edit to suit the needs of your bundle
+         *--------------------------------------------------------------------------------------------*/
+        
+        /**
+         * Return forms that match the following criteria:
+         *     Status is 'Active'
+         *     Type is not 'Template' nor 'Utility'
+         *     Has categorizations
+         */
+        public List<Form> filterForms(List<Form> forms){
+            List<Form> filteredForms = new ArrayList<Form>();
+            for (Form form : forms){
+                if (!Text.equals(form.getStatus(), "Active")
+                        || Text.equals(form.getTypeName(), "Template")
+                        || Text.equals(form.getTypeName(), "Utility")
+                        || form.getCategorizations().isEmpty()){
+                    continue;
+                }
+                filteredForms.add(form);
+            }
+            return filteredForms;
         }
         
         /*----------------------------------------------------------------------------------------------
@@ -41,7 +73,7 @@
          * Returns full list of WeightedForms that match all words in the query.
          * If pageSize is passed in, returns 
          */
-        public List<WeightedForm> search(List<Form> forms, String query) {
+        public SearchResults<WeightedForm> search(List<Form> forms, String query) {
             return search(forms, query, 0, 0);
         }
     
@@ -50,10 +82,14 @@
          * If pageSize is passed in, returns number of results equal to pageSize. If invalid, returns all records up to the end.
          * If offset is passed in, returns results starting at the offset position. If invalid, starts at position 0.
          */
-        public List<WeightedForm> search(List<Form> forms, String query, int pageSize, int offset) {
+        public SearchResults<WeightedForm> search(List<Form> forms, String query, int pageSize, int offset) {
+            // Create meta info with search term and passed in pageSize and offset
+            Map<String, String> meta = new HashMap<String, String>();
+            meta.put("query", query);
+            
             // If forms is null or query is null/empty, return empty list
             if (forms == null || Text.isBlank(query)){
-                return new ArrayList<WeightedForm>();
+                return new SearchResults<WeightedForm>();
             }
             // Breaks query parameter into individual words
             List<String> queryParts = Arrays.asList(query.trim().toLowerCase().split(" "));
@@ -82,13 +118,17 @@
             // Sort results
             Collections.sort(results);
             
+            // Add count and total to meta info
+            meta.put("count", String.valueOf(results.size()));
+            recordSearchHistory(meta);
+            
             // If offset is invalid, set to zero
             if (offset < 0){
                 offset = 0;
             }
             // If offset is after the last result, return empty list
             if (offset >= results.size()){
-                return new ArrayList<WeightedForm>();
+                return new SearchResults<WeightedForm>(Collections.EMPTY_LIST, meta);
             }
             // Set pageEnd initially to end of list
             int pageEnd = results.size();
@@ -97,7 +137,7 @@
                 pageEnd = offset + pageSize;
             }
             // Return a sublist of WeightedForm objects stored in resultsList
-            return results.subList(offset, pageEnd);
+            return new SearchResults(results.subList(offset, pageEnd), meta);
         }
         
         /*----------------------------------------------------------------------------------------------
@@ -314,6 +354,60 @@
             private static int getWeightByLevel(int level){
                 return level < LEVEL_WEIGHT.length ? LEVEL_WEIGHT[level] : LEVEL_WEIGHT[LEVEL_WEIGHT.length-1];
             }
+        }
+        
+        public void recordSearchHistory(Map<String, String> meta){
+            Boolean record = Boolean.FALSE;
+            if (this.kapp == null || !this.space.hasAttribute("Admin Kapp Slug") 
+                    || this.space.getKapp(this.space.getAttributeValue("Admin Kapp Slug")) == null){
+                return;
+            }
+            Kapp adminKapp = this.space.getKapp(this.space.getAttributeValue("Admin Kapp Slug"));
+            if (Text.equalsIgnoreCase(kapp.getAttributeValue("Record Search History"), "All")){
+                record = Boolean.TRUE;
+            }
+            else if (Text.equalsIgnoreCase(kapp.getAttributeValue("Record Search History"), "None") && Integer.parseInt(meta.get("count")) <= 0){
+                record = Boolean.TRUE;
+            }
+            if (record){
+                meta.put("recordUrl", this.bundle.getApiLocation() + "/kapps/" + adminKapp.getSlug() + "/forms/" + this.SEARCH_HISTORY_FORM_SLUG + "/submissions");
+                meta.put("recordData", 
+                    "{" +
+                        "\"values\": {" +
+                            "\"Search Term\": \"" + meta.get("query") + "\"," +
+                            "\"Number of Results Found\": \"" + meta.get("count") + "\"," +
+                            "\"Kapp Slug\": \"" + this.kapp.getSlug() + "\"" +
+                        "}" +
+                    "}"
+                );
+            }
+        }
+        
+        public String getRecordSearchHistoryScript(Map<String, String> meta){
+            if (meta == null || Text.isBlank(meta.get("recordUrl"))){
+                return "";
+            }
+            else {
+                return "<script>"
+                     + "$.ajax({"
+                         + "method: \"post\","
+                         + "url: \"" + meta.get("recordUrl") + "\","
+                         + "data: JSON.stringify(" + meta.get("recordData") + "),"
+                         + "dataType: \"json\","
+                         + "contentType: \"application/json\""
+                     + "});"
+                 + "</script>";
+            }
+        }
+        
+        public class SearchResults<T> extends ArrayList<T> {
+            public SearchResults(){}
+            public SearchResults(Collection<T> collection){ this.addAll(collection); }
+            public SearchResults(Collection<T> collection, Map<String, String> meta){ this.addAll(collection); this.meta = meta; }
+            private Map<String, String> meta = null;
+            public Map<String, String> getMeta(){ return meta; }
+            public void setMeta(Map<String, String> meta){ this.meta = meta; }
+            
         }
     }
 %>

@@ -117,6 +117,13 @@
                 return this.path;
             }
         }
+         
+        public String getCompanyName(){
+            if (space.hasAttribute("Company Name")) {
+                return space.getAttributeValue("Company Name");
+            }
+            return space.getName();
+        }
         
     }
 %>

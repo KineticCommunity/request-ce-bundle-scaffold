@@ -244,9 +244,9 @@
             }
 
             public List<String> getAssignedGroups() {
-                return submission.getForm().getField("Assigned Group").isComplexDataType()
-                    ? (List)Json.parse(submission.getValue("Assigned Group"))
-                    : Arrays.asList(submission.getValue("Assigned Group"));
+                return submission.getForm().getField("Assigned Team").isComplexDataType()
+                    ? (List)Json.parse(submission.getValue("Assigned Team"))
+                    : Arrays.asList(submission.getValue("Assigned Team"));
             }
 
             public List<String> getAssignedIndividuals() {

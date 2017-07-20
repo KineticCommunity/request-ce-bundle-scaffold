@@ -12,45 +12,35 @@
         <link rel="icon" type="image/png" href="${bundle.location}/images/favicon-32x32.png" sizes="32x32">
         <link rel="icon" type="image/png" href="${bundle.location}/images/favicon-96x96.png" sizes="96x96">
         <link rel="shortcut icon" href="${bundle.location}/images/favicon.ico" type="image/x-icon"/>
-        <c:set var="pageTitle"><bundle:yield name="pageTitle"/></c:set>
-        <title>
-            ${text.join([not empty pageTitle ? pageTitle : text.defaultIfBlank(form.name, kapp.name), space.name], ' - ')}
-            ${space.hasAttribute('Page Title Brand') ? text.join([' | ', space.getAttributeValue('Page Title Brand')]) : ''}
-        </title>
         <app:headContent/>
-        <script>bundle.config.userLocale = '${locale}';</script>
-        <script src="${i18n.scriptPath('shared')}"></script>
-        <script src="${i18n.scriptPath('bundle')}"></script>
-        <%-- Include any custom contexts here. --%>
-        <link href="${bundle.location}/libraries/font-awesome/css/font-awesome.css" rel="stylesheet" type="text/css"/>
+        
+        <%-- Include translation packs --%>
+        <c:if test="${i18n.hasTranslationJs()}">
+            <script src="${i18n.scriptPath('shared')}"></script>
+            <script src="${i18n.scriptPath('bundle')}"></script>
+            <c:if test="${form != null}">
+                <script src="${i18n.scriptPath(form)}"></script>
+            </c:if>
+        </c:if>
+        
+        <%-- Include libraries, css, and js --%>
+        <c:import url="${bundle.path}/partials/libraries.jsp" charEncoding="UTF-8"/>
         <bundle:stylepack>
-            <bundle:style src="${bundle.location}/libraries/bootstrap/css/bootstrap.css"/>
-            <bundle:style src="${bundle.location}/libraries/datatables/datatables.css"/>
-            <bundle:style src="${bundle.location}/libraries/notifie/jquery.notifie.css"/>
-            <bundle:style src="${bundle.location}/css/master.css"/>
+            <bundle:style src="${bundle.location}/css/master.css" />
         </bundle:stylepack>
         <bundle:scriptpack>
-            <bundle:script src="${bundle.location}/libraries/jquery/jquery.min.js" />
-            <bundle:script src="${bundle.location}/libraries/underscore/underscore.js"/>
-            <bundle:script src="${bundle.location}/libraries/bootstrap/js/bootstrap.js"/>
-            <bundle:script src="${bundle.location}/libraries/datatables/datatables.js"/>
-            <bundle:script src="${bundle.location}/libraries/kd-search/search.js"/>
-            <bundle:script src="${bundle.location}/libraries/notifie/jquery.notifie.js"/>
-            <bundle:script src="${bundle.location}/libraries/typeahead/typeahead.min.js"/>
-            <bundle:script src="${bundle.location}/js/catalog.js"/>
+            <bundle:script src="${bundle.location}/js/catalog.js" />
             <bundle:script src="${bundle.location}/js/locking.js" />
-            <bundle:script src="${bundle.location}/js/review.js"/>
+            <bundle:script src="${bundle.location}/js/review.js" />
         </bundle:scriptpack>
-        <%-- Moment-with-locales.js is incompatible with the bundle:scriptpack minification process. --%>
-        <bundle:scriptpack minify="false">
-            <bundle:script src="${bundle.location}/libraries/moment/moment-with-locales.min.js"/>
-        </bundle:scriptpack>
+        
+        <c:set var="pageTitle"><bundle:yield name="pageTitle"/></c:set>
+        <title>
+           ${text.join([not empty pageTitle ? pageTitle : text.defaultIfBlank(form.name, kapp.name), BundleHelper.companyName], ' - ')}
+           ${space.hasAttribute('Page Title Brand') ? text.join([' | ', space.getAttributeValue('Page Title Brand')]) : ''}
+        </title>
+
         <bundle:yield name="head"/>
-        <style>
-            <c:if test="${not empty kapp.getAttributeValue('Logo Height Px')}">
-                .navbar-brand {height:${kapp.getAttributeValue('Logo Height Px')}px;}
-            </c:if>
-        </style>
     </head>
     <body>
         <div class="view-port">

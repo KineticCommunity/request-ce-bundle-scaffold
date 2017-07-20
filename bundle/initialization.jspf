@@ -55,7 +55,8 @@
 <%@include file="SetupHelper.jspf"%>
 <%
     if (request.getAttribute("SetupHelper") == null) {
-        request.setAttribute("SetupHelper", new SetupHelper(request));
+        SetupHelper setupHelper = new SetupHelper(request);
+        request.setAttribute("SetupHelper", setupHelper);
     }
 %>
 

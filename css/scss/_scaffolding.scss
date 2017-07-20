@@ -15,10 +15,11 @@ body {
   background-color: $body-bg-color;
   // Sticky footer space
   margin-bottom: $footer-height;
+  overflow-y: scroll;
 }
 
 body > div.view-port > div.container {
-  margin-top: 1.5rem;
+  
 }
 
 /* Links

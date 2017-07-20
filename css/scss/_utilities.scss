@@ -113,9 +113,18 @@ ul.unstyled {
 .display-inline-block {
   display: inline-block;
 }
+.overflow-auto {
+  overflow-x: auto;
+}
+.overflow-hidden {
+  overflow: hidden;
+}
 
 /* Hide empty state
  *-------------------------------------- */
 .empty-state:not(:only-child) {
+  display: none;
+}
+*:not(.collapse) ~ .empty-collapse-state {
   display: none;
 }

@@ -8,14 +8,6 @@ div.notifie div.notifie-message {
 
 div.notifie button.close {
   margin-left: 5px;
-  background: transparent !important;
-  color: #000 !important;
-  opacity: .2  !important;
-  padding: 0 !important;
-  height: auto !important;
-}
-div.notifie button.close:hover {
-  opacity: .5  !important;
 }
 
 div.notifie div.notifie-buttons {
